@@ -9,9 +9,7 @@
             --bg-page: #f7f4ed;
             --bg-card: #ffffff;
             --bg-header: #edf3f7;
-            --bg-accent-light: #f0f7f4;
             --border-soft: #e2dcd2;
-            --border-blue: #bae6fd;
             --text-title: #1e293b;
             --text-body: #334155;
             --text-muted: #64748b;
@@ -23,92 +21,94 @@
             --amber-soft: #fef3c7;
             --red-alert: #dc2626;
             --red-soft: #fee2e2;
-            --shadow-soft: 0 4px 15px -2px rgba(90, 80, 60, 0.08);
-            --shadow-card: 0 2px 8px -1px rgba(90, 80, 60, 0.06);
+            --shadow-card: 0 3px 10px rgba(80, 70, 50, 0.06);
             --radius-md: 12px;
             --radius-lg: 16px;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', -apple-system, Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: var(--bg-page); color: var(--text-body); min-height: 100vh; padding: 24px; line-height: 1.6; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', -apple-system, Roboto, sans-serif; }
+        body { background-color: var(--bg-page); color: var(--text-body); min-height: 100vh; padding: 20px; line-height: 1.5; }
         .wrapper { max-width: 1200px; margin: 0 auto; }
-        .monitor-frame { background: #ffffff; border: 2px solid #dcd3c5; border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgba(70, 60, 45, 0.12); overflow: hidden; }
-        .monitor-topbar { background: linear-gradient(to right, #e8f1f5, #f2ede4); border-bottom: 2px solid var(--border-soft); padding: 16px 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+        .monitor-frame { background: #ffffff; border: 2px solid #dcd3c5; border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgba(70, 60, 45, 0.12); overflow: visible; }
+        .monitor-topbar { background: linear-gradient(to right, #e8f1f5, #f2ede4); border-bottom: 2px solid var(--border-soft); padding: 16px 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; border-top-left-radius: var(--radius-lg); border-top-right-radius: var(--radius-lg); }
         .system-identity { display: flex; align-items: center; gap: 12px; }
-        .system-icon { width: 42px; height: 42px; border-radius: 10px; background: #dcfce7; color: var(--green-leaf); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; border: 1px solid #bbf7d0; }
-        .system-title h1 { font-size: 1.25rem; color: var(--text-title); font-weight: 700; letter-spacing: -0.3px; }
+        .system-icon { width: 44px; height: 44px; border-radius: 10px; background: #dcfce7; color: var(--green-leaf); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; border: 1px solid #bbf7d0; }
+        .system-title h1 { font-size: 1.25rem; color: var(--text-title); font-weight: 700; }
         .system-title p { font-size: 0.85rem; color: var(--text-muted); }
         .system-status-pills { display: flex; flex-wrap: wrap; gap: 8px; }
-        .pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; cursor: help; }
+        .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; cursor: help; position: relative; }
         .pill-green { background: var(--green-soft); color: #15803d; border: 1px solid #86efac; }
         .pill-blue { background: var(--blue-soft); color: #0369a1; border: 1px solid #7dd3fc; }
         .pill-amber { background: var(--amber-soft); color: #b45309; border: 1px solid #fde68a; }
         .pulse-led { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: pulse-ring 2s infinite; }
         @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
         .monitor-body { padding: 24px; background: #faf8f5; }
-        .help-banner { background: #ffffff; border-left: 4px solid var(--blue-brand); border-radius: 8px; padding: 12px 18px; margin-bottom: 24px; box-shadow: var(--shadow-card); display: flex; align-items: center; gap: 14px; }
+        .help-banner { background: #ffffff; border-left: 4px solid var(--blue-brand); border-radius: 8px; padding: 12px 18px; margin-bottom: 20px; box-shadow: var(--shadow-card); display: flex; align-items: center; gap: 14px; }
         .help-banner-icon { font-size: 1.5rem; color: var(--blue-brand); }
         .help-banner-text { font-size: 0.9rem; color: var(--text-body); }
-        .greenhouse-visual { background: linear-gradient(to bottom, #eff6ff, #fbf8f3 70%, #ecfdf5); border: 1px solid #cbd5e1; border-radius: var(--radius-md); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-card); display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; }
-        @media (max-width: 800px) { .greenhouse-visual { grid-template-columns: 1fr; } }
-        .chamber-scene { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 12px; height: 220px; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 12px; }
-        .ceiling-lamp { align-self: center; display: flex; flex-direction: column; align-items: center; transition: all 0.4s ease; }
-        .lamp-bulb { width: 44px; height: 44px; border-radius: 50%; background: #e2e8f0; color: #94a3b8; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; transition: all 0.4s ease; }
-        .lamp-glow-on { background: #fef08a !important; color: #eab308 !important; box-shadow: 0 0 35px #fde047, 0 10px 50px rgba(253, 224, 71, 0.5) !important; }
-        .light-beam { width: 160px; height: 90px; background: linear-gradient(to bottom, rgba(254, 240, 138, 0.4), transparent); clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%); display: none; }
-        .side-fan { position: absolute; right: 12px; top: 35px; display: flex; align-items: center; gap: 8px; }
-        .fan-blade { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: #94a3b8; }
+        .greenhouse-visual { background: linear-gradient(to bottom, #f0f7fb, #faf7f2 65%, #f2f9f4); border: 1px solid #cbd5e1; border-radius: var(--radius-md); padding: 20px; margin-bottom: 24px; box-shadow: var(--shadow-card); display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; align-items: center; }
+        @media (max-width: 850px) { .greenhouse-visual { grid-template-columns: 1fr; } }
+        .chamber-scene { background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px; height: 240px; position: relative; box-shadow: inset 0 2px 6px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between; padding: 10px 16px 8px 16px; }
+        .ceiling-lamp { align-self: center; display: flex; flex-direction: column; align-items: center; z-index: 5; }
+        .lamp-bulb { width: 46px; height: 46px; border-radius: 50%; background: #f1f5f9; color: #94a3b8; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; transition: all 0.3s ease; border: 1px solid #cbd5e1; }
+        .lamp-glow-on { background: #fef08a !important; color: #ca8a04 !important; border-color: #facc15 !important; box-shadow: 0 0 25px #fde047, 0 10px 40px rgba(250, 204, 21, 0.45) !important; }
+        .light-beam { position: absolute; top: 50px; left: 50%; transform: translateX(-50%); width: 220px; height: 140px; background: linear-gradient(to bottom, rgba(254, 240, 138, 0.45), rgba(254, 240, 138, 0.05)); clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%); display: none; pointer-events: none; z-index: 2; }
+        .exhaust-duct { position: absolute; right: 14px; top: 20px; width: 58px; height: 58px; background: #f8fafc; border: 2px solid #94a3b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 6; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+        .fan-blade { font-size: 2.2rem; color: #94a3b8; line-height: 1; transition: color 0.3s; }
         .spinning { animation: fan-spin 0.6s infinite linear; color: var(--blue-brand) !important; }
         @keyframes fan-spin { 100% { transform: rotate(360deg); } }
-        .wind-breeze { position: absolute; right: 70px; top: 48px; font-size: 1.1rem; color: var(--blue-brand); display: none; animation: blow-wind 1s infinite linear; }
+        .wind-breeze { position: absolute; right: 76px; top: 36px; font-size: 1.2rem; color: var(--blue-brand); display: none; animation: blow-wind 0.9s infinite linear; z-index: 6; }
         @keyframes blow-wind { 0% { opacity: 0; transform: translateX(10px); } 50% { opacity: 1; } 100% { opacity: 0; transform: translateX(-25px); } }
-        .plants-bed { align-self: center; font-size: 2.4rem; display: flex; gap: 14px; margin-top: auto; border-bottom: 6px solid #854d0e; padding-bottom: 2px; width: 90%; justify-content: center; }
-        .chamber-explanation h3 { font-size: 1.1rem; color: var(--text-title); margin-bottom: 6px; }
-        .chamber-explanation p { font-size: 0.88rem; color: var(--text-body); margin-bottom: 12px; }
-        .chamber-live-status { background: #ffffff; border: 1px solid var(--border-soft); border-radius: 8px; padding: 12px; font-size: 0.85rem; }
-        .live-status-item { display: flex; justify-content: space-between; margin-bottom: 4px; }
-        .section-heading { font-size: 1.05rem; font-weight: 700; color: var(--text-title); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-bottom: 24px; }
-        .sensor-card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 18px; box-shadow: var(--shadow-card); transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; cursor: pointer; }
-        .sensor-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-soft); border-color: var(--blue-brand); }
-        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .sensor-tag { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
-        .sensor-state { font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; }
-        .value-display { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
-        .value-large { font-size: 2.6rem; font-weight: 800; color: var(--text-title); line-height: 1; }
-        .value-unit { font-size: 1.1rem; color: var(--text-muted); font-weight: 600; }
-        .card-description { font-size: 0.83rem; color: var(--text-body); margin-bottom: 14px; min-height: 40px; }
-        .slider-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; }
-        .slider-label { display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
-        input[type="range"] { width: 100%; height: 8px; border-radius: 4px; background: #e2e8f0; outline: none; -webkit-appearance: none; cursor: pointer; accent-color: var(--blue-brand); }
-        .actuator-card { background: #ffffff; border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 18px; box-shadow: var(--shadow-card); }
-        .actuator-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .actuator-title { font-size: 0.95rem; font-weight: 700; color: var(--text-title); display: flex; align-items: center; gap: 8px; }
-        .actuator-state-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
-        .actuator-icon-large { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; background: #e2e8f0; color: #64748b; }
-        .actuator-info h4 { font-size: 1.1rem; color: var(--text-title); font-weight: 700; }
-        .actuator-info p { font-size: 0.8rem; color: var(--text-muted); }
-        .logic-explanation { background: #f1f5f9; border-radius: 6px; padding: 8px 10px; font-size: 0.78rem; color: var(--text-body); line-height: 1.4; }
-        .scenarios-container { background: #ffffff; border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 16px; margin-bottom: 24px; box-shadow: var(--shadow-card); }
-        .scenarios-title { font-size: 0.88rem; font-weight: 700; color: var(--text-title); margin-bottom: 10px; }
-        .buttons-row { display: flex; flex-wrap: wrap; gap: 10px; }
-        .btn-scenario { background: #f8fafc; border: 1px solid #cbd5e1; color: var(--text-title); padding: 8px 16px; border-radius: 8px; font-size: 0.83rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .soil-bed { margin-top: auto; background: #78350f; border-radius: 8px; padding: 4px 10px; display: flex; justify-content: center; align-items: flex-end; gap: 22px; border-top: 3px solid #b45309; z-index: 4; height: 48px; }
+        .plant-item { font-size: 2.2rem; line-height: 1; margin-bottom: 2px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15)); }
+        .chamber-explanation h3 { font-size: 1.05rem; color: var(--text-title); margin-bottom: 6px; }
+        .chamber-explanation p { font-size: 0.85rem; color: var(--text-body); margin-bottom: 12px; }
+        .chamber-live-status { background: #ffffff; border: 1px solid var(--border-soft); border-radius: 8px; padding: 12px; font-size: 0.83rem; }
+        .live-status-item { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .scenarios-container { background: #ffffff; border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 24px; box-shadow: var(--shadow-card); }
+        .scenarios-title { font-size: 0.85rem; font-weight: 700; color: var(--text-title); margin-bottom: 8px; }
+        .buttons-row { display: flex; flex-wrap: wrap; gap: 8px; }
+        .btn-scenario { background: #f8fafc; border: 1px solid #cbd5e1; color: var(--text-title); padding: 8px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
         .btn-scenario:hover { background: #e0f2fe; border-color: var(--blue-brand); color: var(--blue-brand); }
         .btn-scenario.active { background: #0284c7; border-color: #0284c7; color: #ffffff; }
-        .grid-2-bottom { display: grid; grid-template-columns: 3fr 2fr; gap: 18px; margin-bottom: 20px; }
+        .section-heading { font-size: 1.02rem; font-weight: 700; color: var(--text-title); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-bottom: 24px; }
+        .sensor-card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-card); transition: transform 0.2s, border-color 0.2s; position: relative; }
+        .sensor-card:hover { transform: translateY(-2px); border-color: var(--blue-brand); }
+        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .sensor-tag { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+        .sensor-state { font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; }
+        .value-display { display: flex; align-items: baseline; gap: 6px; margin-bottom: 6px; }
+        .value-large { font-size: 2.5rem; font-weight: 800; color: var(--text-title); line-height: 1; }
+        .value-unit { font-size: 1rem; color: var(--text-muted); font-weight: 600; }
+        .card-description { font-size: 0.82rem; color: var(--text-body); margin-bottom: 12px; min-height: 38px; }
+        .slider-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; }
+        .slider-label { display: flex; justify-content: space-between; font-size: 0.76rem; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
+        input[type="range"] { width: 100%; height: 7px; border-radius: 4px; background: #e2e8f0; outline: none; -webkit-appearance: none; cursor: pointer; accent-color: var(--blue-brand); }
+        .actuator-card { background: #ffffff; border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-card); }
+        .actuator-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .actuator-title { font-size: 0.92rem; font-weight: 700; color: var(--text-title); display: flex; align-items: center; gap: 6px; }
+        .actuator-state-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+        .actuator-icon-large { width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; background: #e2e8f0; color: #64748b; }
+        .actuator-info h4 { font-size: 1.05rem; color: var(--text-title); font-weight: 700; }
+        .actuator-info p { font-size: 0.76rem; color: var(--text-muted); }
+        .logic-explanation { background: #f1f5f9; border-radius: 6px; padding: 8px 10px; font-size: 0.76rem; color: var(--text-body); line-height: 1.35; }
+        .grid-2-bottom { display: grid; grid-template-columns: 3fr 2fr; gap: 18px; margin-bottom: 16px; }
         @media (max-width: 900px) { .grid-2-bottom { grid-template-columns: 1fr; } }
-        .chart-box { background: #ffffff; border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 18px; box-shadow: var(--shadow-card); }
-        canvas { width: 100% !important; height: 200px !important; background: #ffffff; border-radius: 8px; }
+        .chart-box { background: #ffffff; border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-card); }
+        canvas { width: 100% !important; height: 190px !important; background: #ffffff; }
         .terminal-box { background: #ffffff; border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-card); display: flex; flex-direction: column; }
-        .log-container { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; flex-grow: 1; height: 190px; overflow-y: auto; font-size: 0.78rem; line-height: 1.5; }
+        .log-container { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; flex-grow: 1; height: 180px; overflow-y: auto; font-size: 0.78rem; line-height: 1.45; }
         .log-line { margin-bottom: 6px; border-bottom: 1px solid #edf2f7; padding-bottom: 4px; }
         .log-time { color: var(--text-muted); font-weight: 600; margin-right: 4px; }
         .log-badge-ok { color: var(--green-leaf); font-weight: 700; }
         .log-badge-act { color: var(--blue-brand); font-weight: 700; }
         .log-badge-alert { color: var(--red-alert); font-weight: 700; }
-        .monitor-footer { background: #edf3f7; border-top: 1px solid var(--border-soft); padding: 14px 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); }
+        .monitor-footer { background: #edf3f7; border-top: 1px solid var(--border-soft); padding: 14px 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); border-bottom-left-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg); }
         [data-tooltip] { position: relative; }
-        [data-tooltip]::after { content: attr(data-tooltip); position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); background-color: #1e293b; color: #ffffff; font-size: 0.78rem; line-height: 1.4; padding: 8px 12px; border-radius: 8px; width: max-content; max-width: 260px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 0.25s ease, transform 0.25s ease; z-index: 999; text-align: center; font-weight: 400; }
+        [data-tooltip]::after { content: attr(data-tooltip); position: absolute; bottom: 105%; left: 50%; transform: translateX(-50%); background-color: #0f172a; color: #ffffff; font-size: 0.78rem; line-height: 1.35; padding: 8px 12px; border-radius: 8px; width: max-content; max-width: 280px; box-shadow: 0 8px 20px rgba(0,0,0,0.25); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, transform 0.2s ease; z-index: 1000; text-align: center; font-weight: 400; }
         [data-tooltip]:hover::after { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(-4px); }
+        .tooltip-down[data-tooltip]::after { bottom: auto !important; top: 125% !important; transform: translateX(-50%) !important; }
+        .tooltip-down[data-tooltip]:hover::after { transform: translateX(-50%) translateY(4px) !important; }
     </style>
 </head>
 <body>
@@ -123,14 +123,14 @@
                 </div>
             </div>
             <div class="system-status-pills">
-                <div class="pill pill-green" data-tooltip="O FreeRTOS gerencia as tarefas do microcontrolador sem travar e com tempo real estrito.">
+                <div class="pill pill-green tooltip-down" data-tooltip="O FreeRTOS gerencia as tarefas do microcontrolador com tempo real estrito, garantindo resposta rápida aos sensores.">
                     <span class="pulse-led"></span>
                     <span>FreeRTOS: OPERACIONAL</span>
                 </div>
-                <div class="pill pill-blue" data-tooltip="Comunicação segura com a nuvem utilizando protocolo leve MQTT e criptografia TLS 1.3.">
+                <div class="pill pill-blue tooltip-down" data-tooltip="Comunicação segura com a nuvem utilizando protocolo leve MQTT e criptografia TLS 1.3.">
                     <span>&#128274; MQTT/TLS 1.3: CONECTADO</span>
                 </div>
-                <div class="pill pill-amber" id="powerPill" data-tooltip="O ESP32-S3 gerencia a energia ativamente para economizar a bateria da estufa.">
+                <div class="pill pill-amber tooltip-down" id="powerPill" data-tooltip="O ESP32-S3 gerencia a energia ativamente para economizar a bateria da estufa.">
                     <span>&#9889; ENERGIA: ATIVO (28 mA)</span>
                 </div>
             </div>
@@ -140,24 +140,25 @@
             <div class="help-banner">
                 <div class="help-banner-icon">&#128161;</div>
                 <div class="help-banner-text">
-                    <strong>Como funciona esta tela?</strong> Passe o mouse sobre qualquer sensor, número ou atuador para ver a explicação de engenharia. Use os controles deslizantes abaixo para simular o clima da estufa e veja o sistema embarcado reagir em tempo real!
+                    <strong>Como funciona esta tela?</strong> Passe o mouse sobre qualquer sensor ou atuador para ver a explicação de engenharia. Use os controles deslizantes ou os botões de cenários para simular o clima da estufa em tempo real!
                 </div>
             </div>
 
             <div class="greenhouse-visual">
-                <div class="chamber-scene" id="chamberScene">
-                    <div class="ceiling-lamp" data-tooltip="Lâmpada LED de suplementação: acende automaticamente no escuro para manter a fotossíntese das plantas.">
+                <div class="chamber-scene">
+                    <div class="ceiling-lamp" data-tooltip="Lâmpada LED de suplementação: acende automaticamente no escuro para manter o fotoperíodo das plantas.">
                         <div class="lamp-bulb" id="visualLampBulb">&#128161;</div>
-                        <div class="light-beam" id="visualLightBeam"></div>
                     </div>
-                    <div class="side-fan" data-tooltip="Exaustor de ventilação: gira automaticamente para expulsar o calor excessivo quando a temperatura passa de 28 °C.">
-                        <div class="wind-breeze" id="visualWind">&#128168;</div>
+                    <div class="light-beam" id="visualLightBeam"></div>
+                    <div class="exhaust-duct" data-tooltip="Exaustor de ventilação: gira automaticamente para expulsar o calor excessivo quando a temperatura passa de 28 °C.">
                         <div class="fan-blade" id="visualFan">&#9881;</div>
                     </div>
-                    <div class="plants-bed">
-                        <span>&#127793;</span>
-                        <span>&#127807;</span>
-                        <span>&#127793;</span>
+                    <div class="wind-breeze" id="visualWind">&#128168;</div>
+                    <div class="soil-bed" data-tooltip="Canteiro da estufa: solo fértil protegido com monitoramento contínuo de calor, umidade e luminosidade.">
+                        <span class="plant-item">&#127793;</span>
+                        <span class="plant-item">&#127807;</span>
+                        <span class="plant-item">&#127793;</span>
+                        <span class="plant-item">&#127807;</span>
                     </div>
                 </div>
 
@@ -184,13 +185,13 @@
             <div class="scenarios-container">
                 <div class="scenarios-title">&#9874; Simular Condições Climáticas Pré-programadas:</div>
                 <div class="buttons-row">
-                    <button class="btn-scenario active" onclick="applyPreset('ideal')">
+                    <button class="btn-scenario active" onclick="applyPreset('ideal', event)">
                         <span>&#9728;</span> Condição Ideal (24 °C / 65% / 850 Lux)
                     </button>
-                    <button class="btn-scenario" onclick="applyPreset('calor')">
+                    <button class="btn-scenario" onclick="applyPreset('calor', event)">
                         <span>&#128293;</span> Dia Muito Quente (35 °C / Liga Exaustores no Máximo)
                     </button>
-                    <button class="btn-scenario" onclick="applyPreset('noite')">
+                    <button class="btn-scenario" onclick="applyPreset('noite', event)">
                         <span>&#127769;</span> Noite Sem Luz (Acende Lâmpadas de Fotoperíodo)
                     </button>
                     <button class="btn-scenario" id="btnAutoSim" onclick="toggleAutoSim()">
@@ -204,7 +205,7 @@
             </div>
 
             <div class="grid-3">
-                <div class="sensor-card" data-tooltip="Sensor BME280: Mede a temperatura interna via barramento I2C. Se ultrapassar 28 °C, a ventilação é ligada para resfriar.">
+                <div class="sensor-card" data-tooltip="Sensor BME280: Mede a temperatura interna via barramento I2C. Se passar de 28 °C, a ventilação é ligada.">
                     <div class="card-top">
                         <span class="sensor-tag">Sensor BME280</span>
                         <span class="sensor-state" id="badgeTemp" style="background: var(--green-soft); color: var(--green-leaf);">AGRADÁVEL</span>
@@ -213,10 +214,10 @@
                         <span class="value-large" id="valTemp">24.5</span>
                         <span class="value-unit">&deg;C</span>
                     </div>
-                    <p class="card-description" id="descTemp">A temperatura está adequada para o crescimento das mudas.</p>
+                    <p class="card-description" id="descTemp">Temperatura ideal para o crescimento vegetal.</p>
                     <div class="slider-box">
                         <div class="slider-label">
-                            <span>Simular Variação de Temperatura</span>
+                            <span>Simular Temperatura</span>
                             <strong id="sliderLabelTemp">24.5 &deg;C</strong>
                         </div>
                         <input type="range" id="inputTemp" min="15" max="42" step="0.5" value="24.5">
@@ -232,10 +233,10 @@
                         <span class="value-large" id="valHum">65</span>
                         <span class="value-unit">% UR</span>
                     </div>
-                    <p class="card-description" id="descHum">Umidade em faixa equilibrada, prevenindo desidratação das folhas.</p>
+                    <p class="card-description" id="descHum">Umidade equilibrada entre 60% e 80%.</p>
                     <div class="slider-box">
                         <div class="slider-label">
-                            <span>Simular Variação de Umidade</span>
+                            <span>Simular Umidade</span>
                             <strong id="sliderLabelHum">65 %</strong>
                         </div>
                         <input type="range" id="inputHum" min="20" max="95" step="1" value="65">
@@ -251,10 +252,10 @@
                         <span class="value-large" id="valLux">850</span>
                         <span class="value-unit">Lux</span>
                     </div>
-                    <p class="card-description" id="descLux">Intensidade solar suficiente. As lâmpadas estão em modo econômico.</p>
+                    <p class="card-description" id="descLux">Intensidade solar excelente. Lâmpadas apagadas.</p>
                     <div class="slider-box">
                         <div class="slider-label">
-                            <span>Simular Intensidade de Luz</span>
+                            <span>Simular Luz Natural</span>
                             <strong id="sliderLabelLux">850 Lux</strong>
                         </div>
                         <input type="range" id="inputLux" min="50" max="2000" step="25" value="850">
@@ -263,11 +264,11 @@
             </div>
 
             <div class="section-heading">
-                <span>&#9881;</span> Atuadores e Gestão Energética do Sistema
+                <span>&#9881;</span> Atuadores e Gestão Energética
             </div>
 
             <div class="grid-3">
-                <div class="actuator-card" data-tooltip="O microcontrolador ajusta a velocidade da ventilação via sinal PWM no pino GPIO 18, acelerando suavemente se fizer calor.">
+                <div class="actuator-card" data-tooltip="O microcontrolador modula a velocidade do ventilador via PWM no pino GPIO 18, acelerando suavemente se fizer calor.">
                     <div class="actuator-header">
                         <div class="actuator-title">&#128168; Sistema de Climatização</div>
                         <span class="pill pill-blue" id="fanStatusPill">Desligado (0%)</span>
@@ -284,7 +285,7 @@
                     </div>
                 </div>
 
-                <div class="actuator-card" data-tooltip="O relé optoacoplado fecha o contato elétrico das lâmpadas quando a iluminação natural não for suficiente.">
+                <div class="actuator-card" data-tooltip="O relé optoacoplado fecha o contato elétrico das lâmpadas quando a iluminação natural for insuficiente.">
                     <div class="actuator-header">
                         <div class="actuator-title">&#128161; Lâmpadas de Suplementação</div>
                         <span class="pill pill-amber" id="lampStatusPill">Apagadas</span>
@@ -301,7 +302,7 @@
                     </div>
                 </div>
 
-                <div class="actuator-card" data-tooltip="Estratégia ensinada na apostila: o ESP32 dorme em Deep Sleep (15 µA) e acorda periodicamente para economizar até 97% de bateria.">
+                <div class="actuator-card" data-tooltip="O ESP32 entra em sono profundo (Deep Sleep consumindo 15 µA) e acorda periodicamente para economizar bateria.">
                     <div class="actuator-header">
                         <div class="actuator-title">&#128267; Economia de Bateria</div>
                         <span class="pill pill-green" id="powerModePill">Modo Ativo</span>
@@ -321,8 +322,8 @@
 
             <div class="grid-2-bottom">
                 <div class="chart-box" data-tooltip="Gráfico contínuo que mostra a evolução da temperatura e umidade nos últimos 40 segundos.">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <span style="font-size: 0.9rem; font-weight: 700; color: var(--text-title);">&#128200; Histórico Climático Recente</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-title);">&#128200; Histórico Climático Recente</span>
                         <div style="font-size: 0.75rem; display: flex; gap: 12px;">
                             <span style="color: var(--blue-brand); font-weight: bold;">&mdash; Temperatura (&deg;C)</span>
                             <span style="color: var(--green-leaf); font-weight: bold;">&mdash; Umidade (%)</span>
@@ -333,7 +334,7 @@
 
                 <div class="terminal-box" data-tooltip="Registro em linguagem simples de tudo o que o microcontrolador está fazendo a cada segundo.">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <span style="font-size: 0.9rem; font-weight: 700; color: var(--text-title);">&#128221; O que o Sistema está Fazendo?</span>
+                        <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-title);">&#128221; O que o Sistema está Fazendo?</span>
                         <span style="font-size: 0.75rem; color: var(--green-leaf); font-weight: 600;">Ao vivo</span>
                     </div>
                     <div class="log-container" id="systemLogs"></div>
@@ -351,27 +352,64 @@
 </div>
 
 <script>
-    let temp = 24.5, hum = 65, lux = 850, isSleeping = false, autoSim = false, tickCount = 0;
-    const histTemp = new Array(40).fill(24.5), histHum = new Array(40).fill(65);
+    let temp = 24.5;
+    let hum = 65;
+    let lux = 850;
+    let isSleeping = false;
+    let autoSim = false;
+    let tickCount = 0;
 
-    const inputTemp = document.getElementById('inputTemp'), inputHum = document.getElementById('inputHum'), inputLux = document.getElementById('inputLux');
-    const sliderLabelTemp = document.getElementById('sliderLabelTemp'), sliderLabelHum = document.getElementById('sliderLabelHum'), sliderLabelLux = document.getElementById('sliderLabelLux');
-    const valTemp = document.getElementById('valTemp'), valHum = document.getElementById('valHum'), valLux = document.getElementById('valLux');
-    const badgeTemp = document.getElementById('badgeTemp'), badgeHum = document.getElementById('badgeHum'), badgeLux = document.getElementById('badgeLux');
-    const descTemp = document.getElementById('descTemp'), descHum = document.getElementById('descHum'), descLux = document.getElementById('descLux');
+    const histTemp = new Array(40).fill(24.5);
+    const histHum = new Array(40).fill(65);
 
-    const visualLampBulb = document.getElementById('visualLampBulb'), visualLightBeam = document.getElementById('visualLightBeam');
-    const visualFan = document.getElementById('visualFan'), visualWind = document.getElementById('visualWind');
-    const liveVentStatus = document.getElementById('liveVentStatus'), liveLightStatus = document.getElementById('liveLightStatus');
+    const inputTemp = document.getElementById('inputTemp');
+    const inputHum = document.getElementById('inputHum');
+    const inputLux = document.getElementById('inputLux');
+    const sliderLabelTemp = document.getElementById('sliderLabelTemp');
+    const sliderLabelHum = document.getElementById('sliderLabelHum');
+    const sliderLabelLux = document.getElementById('sliderLabelLux');
 
-    const fanStatusPill = document.getElementById('fanStatusPill'), fanPercentText = document.getElementById('fanPercentText'), fanIconCard = document.getElementById('fanIconCard');
-    const lampStatusPill = document.getElementById('lampStatusPill'), lampRelayText = document.getElementById('lampRelayText'), lampIconCard = document.getElementById('lampIconCard');
-    const currentText = document.getElementById('currentText'), powerPill = document.getElementById('powerPill'), powerModePill = document.getElementById('powerModePill');
+    const valTemp = document.getElementById('valTemp');
+    const valHum = document.getElementById('valHum');
+    const valLux = document.getElementById('valLux');
 
-    const logsContainer = document.getElementById('systemLogs'), canvas = document.getElementById('liveChart'), ctx = canvas.getContext('2d');
+    const badgeTemp = document.getElementById('badgeTemp');
+    const badgeHum = document.getElementById('badgeHum');
+    const badgeLux = document.getElementById('badgeLux');
+    const descTemp = document.getElementById('descTemp');
+    const descHum = document.getElementById('descHum');
+    const descLux = document.getElementById('descLux');
 
-    function resizeCanvas() { canvas.width = canvas.parentElement.clientWidth - 40; canvas.height = 190; }
-    window.addEventListener('resize', resizeCanvas); resizeCanvas();
+    const visualLampBulb = document.getElementById('visualLampBulb');
+    const visualLightBeam = document.getElementById('visualLightBeam');
+    const visualFan = document.getElementById('visualFan');
+    const visualWind = document.getElementById('visualWind');
+
+    const liveVentStatus = document.getElementById('liveVentStatus');
+    const liveLightStatus = document.getElementById('liveLightStatus');
+
+    const fanStatusPill = document.getElementById('fanStatusPill');
+    const fanPercentText = document.getElementById('fanPercentText');
+    const fanIconCard = document.getElementById('fanIconCard');
+
+    const lampStatusPill = document.getElementById('lampStatusPill');
+    const lampRelayText = document.getElementById('lampRelayText');
+    const lampIconCard = document.getElementById('lampIconCard');
+
+    const currentText = document.getElementById('currentText');
+    const powerPill = document.getElementById('powerPill');
+    const powerModePill = document.getElementById('powerModePill');
+
+    const logsContainer = document.getElementById('systemLogs');
+    const canvas = document.getElementById('liveChart');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = canvas.parentElement.clientWidth - 32;
+        canvas.height = 180;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
     function addLog(badgeClass, badgeText, text) {
         if (isSleeping) return;
@@ -384,69 +422,111 @@
     }
 
     function updateSystem() {
-        sliderLabelTemp.innerText = temp.toFixed(1) + ' °C'; sliderLabelHum.innerText = hum + ' %'; sliderLabelLux.innerText = lux + ' Lux';
-        valTemp.innerText = temp.toFixed(1); valHum.innerText = hum; valLux.innerText = lux;
+        const cleanTemp = temp.toFixed(1);
+        const cleanHum = Math.round(hum);
+        const cleanLux = Math.round(lux);
+
+        sliderLabelTemp.innerText = cleanTemp + ' °C';
+        sliderLabelHum.innerText = cleanHum + ' %';
+        sliderLabelLux.innerText = cleanLux + ' Lux';
+
+        valTemp.innerText = cleanTemp;
+        valHum.innerText = cleanHum;
+        valLux.innerText = cleanLux;
 
         let pwm = 0;
         if (temp > 28.0) {
             pwm = Math.min(100, Math.round((temp - 28.0) * 16.6));
-            badgeTemp.style.background = 'var(--red-soft)'; badgeTemp.style.color = 'var(--red-alert)'; badgeTemp.innerText = 'CALOR ELEVADO';
-            descTemp.innerText = 'Atenção: temperatura acima do ideal. Ventilação ativada para proteger as plantas.';
+            badgeTemp.style.background = 'var(--red-soft)';
+            badgeTemp.style.color = 'var(--red-alert)';
+            badgeTemp.innerText = 'CALOR ELEVADO';
+            descTemp.innerText = 'Atenção: calor acima de 28 °C. Ventilação ativada para proteger as plantas.';
         } else if (temp < 18.0) {
-            badgeTemp.style.background = 'var(--blue-soft)'; badgeTemp.style.color = 'var(--blue-brand)'; badgeTemp.innerText = 'FRIO';
+            badgeTemp.style.background = 'var(--blue-soft)';
+            badgeTemp.style.color = 'var(--blue-brand)';
+            badgeTemp.innerText = 'FRIO';
             descTemp.innerText = 'Temperatura fresca. O microcontrolador mantém a ventilação desligada.';
         } else {
-            badgeTemp.style.background = 'var(--green-soft)'; badgeTemp.style.color = 'var(--green-leaf)'; badgeTemp.innerText = 'AGRADÁVEL';
-            descTemp.innerText = 'Temperatura perfeita para o cultivo protegido.';
+            badgeTemp.style.background = 'var(--green-soft)';
+            badgeTemp.style.color = 'var(--green-leaf)';
+            badgeTemp.innerText = 'AGRADÁVEL';
+            descTemp.innerText = 'Temperatura ideal para o cultivo protegido.';
         }
 
-        if (hum < 50) {
-            badgeHum.style.background = 'var(--amber-soft)'; badgeHum.style.color = 'var(--amber-warm)'; badgeHum.innerText = 'AR SECO';
+        if (cleanHum < 50) {
+            badgeHum.style.background = 'var(--amber-soft)';
+            badgeHum.style.color = 'var(--amber-warm)';
+            badgeHum.innerText = 'AR SECO';
             descHum.innerText = 'Ar seco. Recomenda-se irrigação para não desidratar o solo.';
-        } else if (hum > 80) {
-            badgeHum.style.background = 'var(--amber-soft)'; badgeHum.style.color = 'var(--amber-warm)'; badgeHum.innerText = 'MUITO ÚMIDO';
+        } else if (cleanHum > 80) {
+            badgeHum.style.background = 'var(--amber-soft)';
+            badgeHum.style.color = 'var(--amber-warm)';
+            badgeHum.innerText = 'MUITO ÚMIDO';
             descHum.innerText = 'Umidade alta. O exaustor ajudará na circulação do ar para evitar fungos.';
         } else {
-            badgeHum.style.background = 'var(--green-soft)'; badgeHum.style.color = 'var(--green-leaf)'; badgeHum.innerText = 'IDEAL';
+            badgeHum.style.background = 'var(--green-soft)';
+            badgeHum.style.color = 'var(--green-leaf)';
+            badgeHum.innerText = 'IDEAL';
             descHum.innerText = 'Umidade equilibrada entre 60% e 80%. As plantas transpiram com saúde.';
         }
 
-        let lampOn = false;
-        if (lux < 500) {
-            lampOn = true;
-            badgeLux.style.background = 'var(--amber-soft)'; badgeLux.style.color = 'var(--amber-warm)'; badgeLux.innerText = 'POUCA LUZ';
-            descLux.innerText = 'Luz ambiente insuficiente. Lâmpadas acesas para manter o crescimento.';
+        let lampOn = (cleanLux < 500);
+        if (lampOn) {
+            badgeLux.style.background = 'var(--amber-soft)';
+            badgeLux.style.color = 'var(--amber-warm)';
+            badgeLux.innerText = 'POUCA LUZ';
+            descLux.innerText = 'Luz ambiente insuficiente (< 500 Lux). Lâmpadas acesas para manter o crescimento.';
         } else {
-            badgeLux.style.background = 'var(--green-soft)'; badgeLux.style.color = 'var(--green-leaf)'; badgeLux.innerText = 'LUZ NATURAL';
+            badgeLux.style.background = 'var(--green-soft)';
+            badgeLux.style.color = 'var(--green-leaf)';
+            badgeLux.innerText = 'LUZ NATURAL';
             descLux.innerText = 'Intensidade solar excelente. Lâmpadas apagadas economizando energia.';
         }
 
         fanPercentText.innerText = pwm + '% de Potência';
         if (pwm > 0) {
-            fanStatusPill.className = 'pill pill-blue'; fanStatusPill.innerText = `Ligado (${pwm}%)`;
-            visualFan.className = 'fan-blade spinning'; visualFan.style.animationDuration = Math.max(0.12, 1.0 - (pwm / 130)) + 's';
-            visualWind.style.display = 'block'; fanIconCard.style.color = 'var(--blue-brand)';
+            fanStatusPill.className = 'pill pill-blue';
+            fanStatusPill.innerText = `Ligado (${pwm}%)`;
+            visualFan.className = 'fan-blade spinning';
+            visualFan.style.animationDuration = Math.max(0.12, 1.0 - (pwm / 130)) + 's';
+            visualWind.style.display = 'block';
+            fanIconCard.style.color = 'var(--blue-brand)';
             liveVentStatus.innerText = `Ativa a ${pwm}% de velocidade (Resfriando a estufa)`;
             liveVentStatus.style.color = 'var(--blue-brand)';
         } else {
-            fanStatusPill.className = 'pill'; fanStatusPill.style.background = '#f1f5f9'; fanStatusPill.style.color = '#64748b';
-            fanStatusPill.innerText = 'Desligado (0%)'; visualFan.className = 'fan-blade';
-            visualWind.style.display = 'none'; fanIconCard.style.color = '#94a3b8';
-            liveVentStatus.innerText = 'Desligada (Clima Agradável)'; liveVentStatus.style.color = 'var(--text-muted)';
+            fanStatusPill.className = 'pill';
+            fanStatusPill.style.background = '#f1f5f9';
+            fanStatusPill.style.color = '#64748b';
+            fanStatusPill.innerText = 'Desligado (0%)';
+            visualFan.className = 'fan-blade';
+            visualWind.style.display = 'none';
+            fanIconCard.style.color = '#94a3b8';
+            liveVentStatus.innerText = 'Desligada (Clima Agradável)';
+            liveVentStatus.style.color = 'var(--text-muted)';
         }
 
         if (lampOn) {
-            lampStatusPill.className = 'pill pill-amber'; lampStatusPill.innerText = 'Acesa (Ligada)';
-            lampRelayText.innerText = 'Relé Fechado (LIGADO)'; lampRelayText.style.color = 'var(--amber-warm)';
-            visualLampBulb.className = 'lamp-bulb lamp-glow-on'; visualLightBeam.style.display = 'block';
-            lampIconCard.style.color = 'var(--amber-warm)'; liveLightStatus.innerText = 'Acesa (Suplementação Ativa)';
+            lampStatusPill.className = 'pill pill-amber';
+            lampStatusPill.innerText = 'Acesa (Ligada)';
+            lampRelayText.innerText = 'Relé Fechado (LIGADO)';
+            lampRelayText.style.color = 'var(--amber-warm)';
+            visualLampBulb.className = 'lamp-bulb lamp-glow-on';
+            visualLightBeam.style.display = 'block';
+            lampIconCard.style.color = 'var(--amber-warm)';
+            liveLightStatus.innerText = 'Acesa (Suplementação Ativa)';
             liveLightStatus.style.color = 'var(--amber-warm)';
         } else {
-            lampStatusPill.className = 'pill'; lampStatusPill.style.background = '#f1f5f9'; lampStatusPill.style.color = '#64748b';
-            lampStatusPill.innerText = 'Apagada'; lampRelayText.innerText = 'Relé Aberto (DESLIGADO)';
-            lampRelayText.style.color = 'var(--text-title)'; visualLampBulb.className = 'lamp-bulb';
-            visualLightBeam.style.display = 'none'; lampIconCard.style.color = '#94a3b8';
-            liveLightStatus.innerText = 'Apagada (Luz Natural Suficiente)'; liveLightStatus.style.color = 'var(--text-muted)';
+            lampStatusPill.className = 'pill';
+            lampStatusPill.style.background = '#f1f5f9';
+            lampStatusPill.style.color = '#64748b';
+            lampStatusPill.innerText = 'Apagada';
+            lampRelayText.innerText = 'Relé Aberto (DESLIGADO)';
+            lampRelayText.style.color = 'var(--text-title)';
+            visualLampBulb.className = 'lamp-bulb';
+            visualLightBeam.style.display = 'none';
+            lampIconCard.style.color = '#94a3b8';
+            liveLightStatus.innerText = 'Apagada (Luz Natural Suficiente)';
+            liveLightStatus.style.color = 'var(--text-muted)';
         }
 
         if (!isSleeping) {
@@ -459,20 +539,34 @@
 
     function renderChart() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const w = canvas.width, h = canvas.height;
-        ctx.strokeStyle = '#f1f5f9'; ctx.lineWidth = 1;
-        for (let i = 1; i <= 4; i++) { ctx.beginPath(); ctx.moveTo(0, (h / 4) * i); ctx.lineTo(w, (h / 4) * i); ctx.stroke(); }
+        const w = canvas.width;
+        const h = canvas.height;
 
-        ctx.strokeStyle = '#0284c7'; ctx.lineWidth = 2.5; ctx.beginPath();
+        ctx.strokeStyle = '#f1f5f9';
+        ctx.lineWidth = 1;
+        for (let i = 1; i <= 4; i++) {
+            ctx.beginPath();
+            ctx.moveTo(0, (h / 4) * i);
+            ctx.lineTo(w, (h / 4) * i);
+            ctx.stroke();
+        }
+
+        ctx.strokeStyle = '#0284c7';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
         for (let i = 0; i < histTemp.length; i++) {
-            let x = (i / (histTemp.length - 1)) * w, y = h - ((histTemp[i] - 15) / 30) * h;
+            let x = (i / (histTemp.length - 1)) * w;
+            let y = h - ((histTemp[i] - 15) / 30) * h;
             if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
         }
         ctx.stroke();
 
-        ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 2; ctx.beginPath();
+        ctx.strokeStyle = '#16a34a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
         for (let i = 0; i < histHum.length; i++) {
-            let x = (i / (histHum.length - 1)) * w, y = h - ((histHum[i] - 20) / 80) * h;
+            let x = (i / (histHum.length - 1)) * w;
+            let y = h - ((histHum[i] - 20) / 80) * h;
             if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
         }
         ctx.stroke();
@@ -482,42 +576,54 @@
         isSleeping = true;
         currentText.innerText = '0.015 mA (15 µA)';
         powerPill.innerHTML = `<span>&#128164; ENERGIA: DEEP SLEEP (15 µA)</span>`;
-        powerPill.className = 'pill'; powerPill.style.background = '#e2e8f0'; powerPill.style.color = '#475569';
-        powerModePill.innerText = 'Em Sono Profundo'; powerModePill.className = 'pill';
+        powerPill.className = 'pill tooltip-down';
+        powerPill.style.background = '#e2e8f0';
+        powerPill.style.color = '#475569';
+        powerModePill.innerText = 'Em Sono Profundo';
+        powerModePill.className = 'pill';
 
-        addLog('log-badge-act', 'ECONOMIA', 'O ESP32 entrou em sono profundo (Deep Sleep). Consumo caiu de 28 mA para apenas 15 microamperes!');
+        addLog('log-badge-act', 'ECONOMIA', 'O ESP32 entrou em Deep Sleep. Consumo caiu para apenas 15 microamperes!');
 
         setTimeout(() => {
-            isSleeping = false; powerPill.className = 'pill pill-amber'; powerModePill.className = 'pill pill-green';
-            addLog('log-badge-ok', 'DESPERTAR', 'O temporizador acordou o microcontrolador! Leituras e controle retomados normalmente.');
+            isSleeping = false;
+            powerPill.className = 'pill pill-amber tooltip-down';
+            powerModePill.className = 'pill pill-green';
+            addLog('log-badge-ok', 'DESPERTAR', 'Temporizador RTC acordou o microcontrolador! Leituras e controle retomados.');
             updateSystem();
         }, 7000);
     }
 
-    function applyPreset(type) {
+    function applyPreset(type, evt) {
         document.querySelectorAll('.btn-scenario').forEach(b => b.classList.remove('active'));
+        if (evt && evt.currentTarget) evt.currentTarget.classList.add('active');
+
         if (type === 'ideal') {
-            temp = 24.5; hum = 65; lux = 850; event.target.classList.add('active');
-            addLog('log-badge-ok', 'CENÁRIO', 'Aplicado cenário: Condição Ideal (24.5 °C e 65% de umidade).');
+            temp = 24.5; hum = 65; lux = 850;
+            addLog('log-badge-ok', 'CENÁRIO', 'Condição Ideal aplicada: 24.5 °C, 65% de umidade e 850 Lux.');
         } else if (type === 'calor') {
-            temp = 36.0; hum = 35; lux = 1400; event.target.classList.add('active');
-            addLog('log-badge-alert', 'ALERTA', 'Calor detectado! O microcontrolador acelerou o exaustor para refrigerar a estufa.');
+            temp = 35.0; hum = 35; lux = 1400;
+            addLog('log-badge-alert', 'ALERTA', 'Pico de calor simulado (35 °C)! Exaustor acelerado para refrigerar.');
         } else if (type === 'noite') {
-            temp = 18.0; hum = 80; lux = 150; event.target.classList.add('active');
-            addLog('log-badge-act', 'FOTOPERÍODO', 'Escuridão detectada! O relé fechou o circuito e acendeu as lâmpadas de LED.');
+            temp = 18.0; hum = 80; lux = 150;
+            addLog('log-badge-act', 'FOTOPERÍODO', 'Noite simulada (< 500 Lux). Relé fechado e lâmpadas acesas.');
         }
-        inputTemp.value = temp; inputHum.value = hum; inputLux.value = lux; updateSystem();
+        inputTemp.value = temp;
+        inputHum.value = hum;
+        inputLux.value = lux;
+        updateSystem();
     }
 
     function toggleAutoSim() {
         autoSim = !autoSim;
         const b = document.getElementById('btnAutoSim');
         if (autoSim) {
-            b.innerText = 'Modo Automático 24 Horas: LIGADO'; b.classList.add('active');
-            addLog('log-badge-ok', 'SIMULAÇÃO', 'Iniciada simulação contínua das 24 horas do dia.');
+            b.innerText = 'Modo Automático 24 Horas: LIGADO';
+            b.classList.add('active');
+            addLog('log-badge-ok', 'SIMULAÇÃO', 'Iniciada simulação automática do ciclo dia e noite.');
         } else {
-            b.innerText = 'Modo Automático 24 Horas: DESLIGADO'; b.classList.remove('active');
-            addLog('log-badge-ok', 'SIMULAÇÃO', 'Modo automático pausado.');
+            b.innerText = 'Modo Automático 24 Horas: DESLIGADO';
+            b.classList.remove('active');
+            addLog('log-badge-ok', 'SIMULAÇÃO', 'Simulação automática pausada.');
         }
     }
 
@@ -531,26 +637,29 @@
             if (autoSim) {
                 let phase = (tickCount % 90) / 90;
                 temp = 22.0 + Math.sin(phase * Math.PI * 2) * 11.0;
-                hum = 70.0 - Math.sin(phase * Math.PI * 2) * 22.0;
+                hum = Math.round(70.0 - Math.sin(phase * Math.PI * 2) * 22.0);
                 lux = Math.max(80, Math.round(900 + Math.sin(phase * Math.PI * 2) * 850));
-                inputTemp.value = temp.toFixed(1); inputHum.value = hum.toFixed(0); inputLux.value = lux;
+                inputTemp.value = temp.toFixed(1);
+                inputHum.value = hum;
+                inputLux.value = lux;
             } else {
                 temp = Math.max(15, Math.min(42, temp + (Math.random() - 0.5) * 0.08));
-                hum = Math.max(20, Math.min(95, hum + (Math.random() - 0.5) * 0.12));
+                hum = Math.max(20, Math.min(95, hum + (Math.random() - 0.5) * 0.15));
             }
 
             histTemp.push(temp); histTemp.shift();
             histHum.push(hum); histHum.shift();
 
-            updateSystem(); renderChart();
+            updateSystem();
+            renderChart();
 
             if (tickCount % 4 === 0) {
                 if (temp > 28) {
                     addLog('log-badge-alert', 'CONTROLE', `Exaustor modulado em PWM para conter a temperatura atual de ${temp.toFixed(1)} °C.`);
                 } else if (lux < 500) {
-                    addLog('log-badge-act', 'CONTROLE', `Luz ambiente baixa (${lux} Lux). Lâmpada ligada para proteger o fotoperíodo.`);
+                    addLog('log-badge-act', 'CONTROLE', `Luz ambiente baixa (${Math.round(lux)} Lux). Lâmpadas ligadas pelo relé.`);
                 } else {
-                    addLog('log-badge-ok', 'TELEMETRIA', `Leituras estáveis: ${temp.toFixed(1)} °C, ${hum}% UR, ${lux} Lux. Dados salvos com sucesso.`);
+                    addLog('log-badge-ok', 'TELEMETRIA', `Leituras estáveis: ${temp.toFixed(1)} °C, ${Math.round(hum)}% UR, ${Math.round(lux)} Lux. Dados seguros.`);
                 }
             }
         }
@@ -558,7 +667,8 @@
 
     addLog('log-badge-ok', 'SISTEMA', 'Inicialização concluída: ESP32-S3 operando com FreeRTOS.');
     addLog('log-badge-ok', 'SENSORES', 'Barramento I2C calibrado. Sensores BME280 e BH1750 ativos.');
-    updateSystem(); renderChart();
+    updateSystem();
+    renderChart();
 </script>
 </body>
 </html>
