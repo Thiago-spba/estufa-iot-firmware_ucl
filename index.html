@@ -3,672 +3,1162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Interativo - Estufa Inteligente de Precisão (IoT)</title>
+    <title>Estufa Inteligente IoT — ESP32-S3 + FreeRTOS | Thiago Fernando</title>
     <style>
-        :root {
-            --bg-page: #f7f4ed;
-            --bg-card: #ffffff;
-            --bg-header: #edf3f7;
-            --border-soft: #e2dcd2;
-            --text-title: #1e293b;
-            --text-body: #334155;
-            --text-muted: #64748b;
-            --blue-brand: #0284c7;
-            --blue-soft: #e0f2fe;
-            --green-leaf: #16a34a;
-            --green-soft: #dcfce7;
-            --amber-warm: #d97706;
-            --amber-soft: #fef3c7;
-            --red-alert: #dc2626;
-            --red-soft: #fee2e2;
-            --shadow-card: 0 3px 10px rgba(80, 70, 50, 0.06);
-            --radius-md: 12px;
-            --radius-lg: 16px;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', -apple-system, Roboto, sans-serif; }
-        body { background-color: var(--bg-page); color: var(--text-body); min-height: 100vh; padding: 20px; line-height: 1.5; }
-        .wrapper { max-width: 1200px; margin: 0 auto; }
-        .monitor-frame { background: #ffffff; border: 2px solid #dcd3c5; border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgba(70, 60, 45, 0.12); overflow: visible; }
-        .monitor-topbar { background: linear-gradient(to right, #e8f1f5, #f2ede4); border-bottom: 2px solid var(--border-soft); padding: 16px 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; border-top-left-radius: var(--radius-lg); border-top-right-radius: var(--radius-lg); }
-        .system-identity { display: flex; align-items: center; gap: 12px; }
-        .system-icon { width: 44px; height: 44px; border-radius: 10px; background: #dcfce7; color: var(--green-leaf); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; border: 1px solid #bbf7d0; }
-        .system-title h1 { font-size: 1.25rem; color: var(--text-title); font-weight: 700; }
-        .system-title p { font-size: 0.85rem; color: var(--text-muted); }
-        .system-status-pills { display: flex; flex-wrap: wrap; gap: 8px; }
-        .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; cursor: help; position: relative; }
-        .pill-green { background: var(--green-soft); color: #15803d; border: 1px solid #86efac; }
-        .pill-blue { background: var(--blue-soft); color: #0369a1; border: 1px solid #7dd3fc; }
-        .pill-amber { background: var(--amber-soft); color: #b45309; border: 1px solid #fde68a; }
-        .pulse-led { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: pulse-ring 2s infinite; }
-        @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
-        .monitor-body { padding: 24px; background: #faf8f5; }
-        .help-banner { background: #ffffff; border-left: 4px solid var(--blue-brand); border-radius: 8px; padding: 12px 18px; margin-bottom: 20px; box-shadow: var(--shadow-card); display: flex; align-items: center; gap: 14px; }
-        .help-banner-icon { font-size: 1.5rem; color: var(--blue-brand); }
-        .help-banner-text { font-size: 0.9rem; color: var(--text-body); }
-        .greenhouse-visual { background: linear-gradient(to bottom, #f0f7fb, #faf7f2 65%, #f2f9f4); border: 1px solid #cbd5e1; border-radius: var(--radius-md); padding: 20px; margin-bottom: 24px; box-shadow: var(--shadow-card); display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; align-items: center; }
-        @media (max-width: 850px) { .greenhouse-visual { grid-template-columns: 1fr; } }
-        .chamber-scene { background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px; height: 240px; position: relative; box-shadow: inset 0 2px 6px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between; padding: 10px 16px 8px 16px; }
-        .ceiling-lamp { align-self: center; display: flex; flex-direction: column; align-items: center; z-index: 5; }
-        .lamp-bulb { width: 46px; height: 46px; border-radius: 50%; background: #f1f5f9; color: #94a3b8; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; transition: all 0.3s ease; border: 1px solid #cbd5e1; }
-        .lamp-glow-on { background: #fef08a !important; color: #ca8a04 !important; border-color: #facc15 !important; box-shadow: 0 0 25px #fde047, 0 10px 40px rgba(250, 204, 21, 0.45) !important; }
-        .light-beam { position: absolute; top: 50px; left: 50%; transform: translateX(-50%); width: 220px; height: 140px; background: linear-gradient(to bottom, rgba(254, 240, 138, 0.45), rgba(254, 240, 138, 0.05)); clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%); display: none; pointer-events: none; z-index: 2; }
-        .exhaust-duct { position: absolute; right: 14px; top: 20px; width: 58px; height: 58px; background: #f8fafc; border: 2px solid #94a3b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 6; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
-        .fan-blade { font-size: 2.2rem; color: #94a3b8; line-height: 1; transition: color 0.3s; }
-        .spinning { animation: fan-spin 0.6s infinite linear; color: var(--blue-brand) !important; }
-        @keyframes fan-spin { 100% { transform: rotate(360deg); } }
-        .wind-breeze { position: absolute; right: 76px; top: 36px; font-size: 1.2rem; color: var(--blue-brand); display: none; animation: blow-wind 0.9s infinite linear; z-index: 6; }
-        @keyframes blow-wind { 0% { opacity: 0; transform: translateX(10px); } 50% { opacity: 1; } 100% { opacity: 0; transform: translateX(-25px); } }
-        .soil-bed { margin-top: auto; background: #78350f; border-radius: 8px; padding: 4px 10px; display: flex; justify-content: center; align-items: flex-end; gap: 22px; border-top: 3px solid #b45309; z-index: 4; height: 48px; }
-        .plant-item { font-size: 2.2rem; line-height: 1; margin-bottom: 2px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15)); }
-        .chamber-explanation h3 { font-size: 1.05rem; color: var(--text-title); margin-bottom: 6px; }
-        .chamber-explanation p { font-size: 0.85rem; color: var(--text-body); margin-bottom: 12px; }
-        .chamber-live-status { background: #ffffff; border: 1px solid var(--border-soft); border-radius: 8px; padding: 12px; font-size: 0.83rem; }
-        .live-status-item { display: flex; justify-content: space-between; margin-bottom: 5px; }
-        .scenarios-container { background: #ffffff; border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 24px; box-shadow: var(--shadow-card); }
-        .scenarios-title { font-size: 0.85rem; font-weight: 700; color: var(--text-title); margin-bottom: 8px; }
-        .buttons-row { display: flex; flex-wrap: wrap; gap: 8px; }
-        .btn-scenario { background: #f8fafc; border: 1px solid #cbd5e1; color: var(--text-title); padding: 8px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
-        .btn-scenario:hover { background: #e0f2fe; border-color: var(--blue-brand); color: var(--blue-brand); }
-        .btn-scenario.active { background: #0284c7; border-color: #0284c7; color: #ffffff; }
-        .section-heading { font-size: 1.02rem; font-weight: 700; color: var(--text-title); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-bottom: 24px; }
-        .sensor-card { background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-card); transition: transform 0.2s, border-color 0.2s; position: relative; }
-        .sensor-card:hover { transform: translateY(-2px); border-color: var(--blue-brand); }
-        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .sensor-tag { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
-        .sensor-state { font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; }
-        .value-display { display: flex; align-items: baseline; gap: 6px; margin-bottom: 6px; }
-        .value-large { font-size: 2.5rem; font-weight: 800; color: var(--text-title); line-height: 1; }
-        .value-unit { font-size: 1rem; color: var(--text-muted); font-weight: 600; }
-        .card-description { font-size: 0.82rem; color: var(--text-body); margin-bottom: 12px; min-height: 38px; }
-        .slider-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; }
-        .slider-label { display: flex; justify-content: space-between; font-size: 0.76rem; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
-        input[type="range"] { width: 100%; height: 7px; border-radius: 4px; background: #e2e8f0; outline: none; -webkit-appearance: none; cursor: pointer; accent-color: var(--blue-brand); }
-        .actuator-card { background: #ffffff; border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-card); }
-        .actuator-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .actuator-title { font-size: 0.92rem; font-weight: 700; color: var(--text-title); display: flex; align-items: center; gap: 6px; }
-        .actuator-state-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
-        .actuator-icon-large { width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; background: #e2e8f0; color: #64748b; }
-        .actuator-info h4 { font-size: 1.05rem; color: var(--text-title); font-weight: 700; }
-        .actuator-info p { font-size: 0.76rem; color: var(--text-muted); }
-        .logic-explanation { background: #f1f5f9; border-radius: 6px; padding: 8px 10px; font-size: 0.76rem; color: var(--text-body); line-height: 1.35; }
-        .grid-2-bottom { display: grid; grid-template-columns: 3fr 2fr; gap: 18px; margin-bottom: 16px; }
-        @media (max-width: 900px) { .grid-2-bottom { grid-template-columns: 1fr; } }
-        .chart-box { background: #ffffff; border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-card); }
-        canvas { width: 100% !important; height: 190px !important; background: #ffffff; }
-        .terminal-box { background: #ffffff; border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-card); display: flex; flex-direction: column; }
-        .log-container { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; flex-grow: 1; height: 180px; overflow-y: auto; font-size: 0.78rem; line-height: 1.45; }
-        .log-line { margin-bottom: 6px; border-bottom: 1px solid #edf2f7; padding-bottom: 4px; }
-        .log-time { color: var(--text-muted); font-weight: 600; margin-right: 4px; }
-        .log-badge-ok { color: var(--green-leaf); font-weight: 700; }
-        .log-badge-act { color: var(--blue-brand); font-weight: 700; }
-        .log-badge-alert { color: var(--red-alert); font-weight: 700; }
-        .monitor-footer { background: #edf3f7; border-top: 1px solid var(--border-soft); padding: 14px 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); border-bottom-left-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg); }
-        [data-tooltip] { position: relative; }
-        [data-tooltip]::after { content: attr(data-tooltip); position: absolute; bottom: 105%; left: 50%; transform: translateX(-50%); background-color: #0f172a; color: #ffffff; font-size: 0.78rem; line-height: 1.35; padding: 8px 12px; border-radius: 8px; width: max-content; max-width: 280px; box-shadow: 0 8px 20px rgba(0,0,0,0.25); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, transform 0.2s ease; z-index: 1000; text-align: center; font-weight: 400; }
-        [data-tooltip]:hover::after { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(-4px); }
-        .tooltip-down[data-tooltip]::after { bottom: auto !important; top: 125% !important; transform: translateX(-50%) !important; }
-        .tooltip-down[data-tooltip]:hover::after { transform: translateX(-50%) translateY(4px) !important; }
+/* ─────────────────────────────────────────────────────────────────────────────
+   CUSTOM PROPERTIES
+───────────────────────────────────────────────────────────────────────────── */
+:root {
+    --bg-page:      #f7f4ed;
+    --bg-card:      #ffffff;
+    --border-soft:  #e2dcd2;
+    --text-title:   #1e293b;
+    --text-body:    #334155;
+    --text-muted:   #64748b;
+    --blue:         #0284c7;
+    --blue-soft:    #e0f2fe;
+    --green:        #16a34a;
+    --green-soft:   #dcfce7;
+    --amber:        #d97706;
+    --amber-soft:   #fef3c7;
+    --red:          #dc2626;
+    --red-soft:     #fee2e2;
+    --shadow:       0 3px 10px rgba(80,70,50,.06);
+    --r-md:         12px;
+    --r-lg:         16px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   RESET
+───────────────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Segoe UI', -apple-system, Roboto, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-body);
+    min-height: 100vh;
+    padding: 16px;
+    line-height: 1.5;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   FRAME
+───────────────────────────────────────────────────────────────────────────── */
+.wrapper { max-width: 1200px; margin: 0 auto; }
+
+.monitor-frame {
+    background: #fff;
+    border: 2px solid #dcd3c5;
+    border-radius: var(--r-lg);
+    box-shadow: 0 10px 30px rgba(70,60,45,.12);
+    overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TOP BAR
+───────────────────────────────────────────────────────────────────────────── */
+.topbar {
+    background: linear-gradient(to right, #e8f1f5, #f2ede4);
+    border-bottom: 2px solid var(--border-soft);
+    padding: 14px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.sys-identity { display: flex; align-items: center; gap: 12px; }
+
+.sys-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: var(--green-soft); color: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; border: 1px solid #bbf7d0; flex-shrink: 0;
+}
+
+.sys-title h1 {
+    font-size: clamp(.92rem, 2.4vw, 1.18rem);
+    color: var(--text-title); font-weight: 700;
+}
+.sys-title p { font-size: .79rem; color: var(--text-muted); }
+
+.status-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PILLS
+   FIX: .pill-off substitui style.background/color inline — evita sobreposição
+───────────────────────────────────────────────────────────────────────────── */
+.pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 11px; border-radius: 20px;
+    font-size: .75rem; font-weight: 600;
+    cursor: default; position: relative;
+    border: 1px solid transparent;
+    white-space: nowrap; user-select: none;
+}
+.pill-green  { background: var(--green-soft);  color: #15803d;  border-color: #86efac; }
+.pill-blue   { background: var(--blue-soft);   color: #0369a1;  border-color: #7dd3fc; }
+.pill-amber  { background: var(--amber-soft);  color: #b45309;  border-color: #fde68a; }
+.pill-off    { background: #f1f5f9;            color: #64748b;  border-color: #e2e8f0; }
+
+.pulse-led {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #22c55e;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0%   { transform: scale(.95); box-shadow: 0 0 0 0   rgba(34,197,94,.7); }
+    70%  { transform: scale(1);   box-shadow: 0 0 0 5px rgba(34,197,94,0);  }
+    100% { transform: scale(.95); box-shadow: 0 0 0 0   rgba(34,197,94,0);  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BODY
+───────────────────────────────────────────────────────────────────────────── */
+.monitor-body { padding: 18px; background: #faf8f5; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   HELP BANNER
+───────────────────────────────────────────────────────────────────────────── */
+.help-banner {
+    background: #fff; border-left: 4px solid var(--blue);
+    border-radius: 8px; padding: 11px 15px; margin-bottom: 18px;
+    box-shadow: var(--shadow);
+    display: flex; align-items: flex-start; gap: 11px;
+}
+.help-banner-icon { font-size: 1.3rem; color: var(--blue); flex-shrink: 0; line-height: 1.5; }
+.help-banner-text { font-size: .85rem; color: var(--text-body); }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   GREENHOUSE VISUAL
+───────────────────────────────────────────────────────────────────────────── */
+.greenhouse-visual {
+    background: linear-gradient(to bottom, #f0f7fb, #faf7f2 65%, #f2f9f4);
+    border: 1px solid #cbd5e1; border-radius: var(--r-md);
+    padding: 16px; margin-bottom: 20px; box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+@media (min-width: 680px) { .greenhouse-visual { grid-template-columns: 1.1fr 1fr; align-items: center; } }
+
+.chamber-scene {
+    background: #fff; border: 2px solid #cbd5e1;
+    border-radius: 12px; height: 230px;
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    padding: 10px 16px 8px;
+}
+
+.ceiling-lamp { align-self: center; z-index: 5; }
+
+.lamp-bulb {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: #f1f5f9; color: #94a3b8;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; border: 1px solid #cbd5e1;
+    transition: background .35s, box-shadow .35s, border-color .35s, color .35s;
+}
+.lamp-glow-on {
+    background: #fef08a !important; color: #ca8a04 !important;
+    border-color: #facc15 !important;
+    box-shadow: 0 0 28px #fde047, 0 12px 44px rgba(250,204,21,.4) !important;
+}
+
+.light-beam {
+    position: absolute; top: 54px; left: 50%;
+    transform: translateX(-50%);
+    width: 210px; height: 140px;
+    background: linear-gradient(to bottom, rgba(254,240,138,.42), rgba(254,240,138,.02));
+    clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+    display: none; pointer-events: none; z-index: 2;
+}
+
+.exhaust-duct {
+    position: absolute; right: 14px; top: 18px;
+    width: 54px; height: 54px;
+    background: #f8fafc; border: 2px solid #94a3b8;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 6;
+}
+.fan-blade  { font-size: 1.9rem; color: #94a3b8; line-height: 1; transition: color .3s; }
+.fan-active { animation: spin var(--fan-spd, .7s) infinite linear; color: var(--blue) !important; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.wind-breeze {
+    position: absolute; right: 72px; top: 36px;
+    font-size: 1.1rem; color: var(--blue);
+    display: none; animation: blow .9s infinite linear; z-index: 6;
+}
+@keyframes blow {
+    0%   { opacity: 0; transform: translateX(8px); }
+    50%  { opacity: 1; }
+    100% { opacity: 0; transform: translateX(-20px); }
+}
+
+.soil-bed {
+    margin-top: auto; background: #78350f;
+    border-radius: 8px; padding: 4px 10px;
+    display: flex; justify-content: center;
+    align-items: flex-end; gap: 16px;
+    border-top: 3px solid #b45309; z-index: 4; height: 46px;
+}
+.plant-item { font-size: 1.9rem; line-height: 1; margin-bottom: 2px; }
+
+.chamber-expl h3 { font-size: .98rem; color: var(--text-title); font-weight: 700; margin-bottom: 6px; }
+.chamber-expl p  { font-size: .82rem; color: var(--text-body); margin-bottom: 12px; }
+
+.live-status {
+    background: #fff; border: 1px solid var(--border-soft);
+    border-radius: 8px; padding: 11px; font-size: .81rem;
+}
+.live-status-row {
+    display: flex; justify-content: space-between;
+    gap: 8px; flex-wrap: wrap; margin-bottom: 5px;
+}
+.live-status-row:last-child { margin-bottom: 0; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SCENARIOS
+───────────────────────────────────────────────────────────────────────────── */
+.scenarios {
+    background: #fff; border: 1px solid var(--border-soft);
+    border-radius: var(--r-md); padding: 13px 16px;
+    margin-bottom: 20px; box-shadow: var(--shadow);
+}
+.scenarios-title { font-size: .82rem; font-weight: 700; color: var(--text-title); margin-bottom: 8px; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.btn-sc {
+    background: #f8fafc; border: 1px solid #cbd5e1;
+    color: var(--text-title); padding: 6px 12px;
+    border-radius: 8px; font-size: .8rem; font-weight: 600;
+    cursor: pointer;
+    transition: background .16s, border-color .16s, color .16s;
+    display: flex; align-items: center; gap: 5px;
+}
+.btn-sc:hover  { background: #e0f2fe; border-color: var(--blue); color: var(--blue); }
+.btn-sc.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION HEADING
+───────────────────────────────────────────────────────────────────────────── */
+.section-h {
+    font-size: .96rem; font-weight: 700; color: var(--text-title);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 7px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   GRIDS — MOBILE FIRST
+   FIX: minmax(320px, 1fr) causava scroll horizontal em telas < 380px.
+        Abordagem mobile-first com breakpoints explícitos resolve isso.
+───────────────────────────────────────────────────────────────────────────── */
+.grid-3 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px; margin-bottom: 20px;
+}
+@media (min-width: 560px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 900px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px; margin-bottom: 16px;
+}
+@media (min-width: 780px) { .grid-2 { grid-template-columns: 3fr 2fr; } }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SENSOR CARDS
+───────────────────────────────────────────────────────────────────────────── */
+.sensor-card {
+    background: var(--bg-card); border: 1px solid var(--border-soft);
+    border-radius: var(--r-md); padding: 15px; box-shadow: var(--shadow);
+    transition: transform .18s, border-color .18s;
+}
+.sensor-card:hover { transform: translateY(-2px); border-color: var(--blue); }
+
+.card-top {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 7px;
+    flex-wrap: wrap; gap: 4px;
+}
+.sensor-tag  { font-size: .74rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+
+/* FIX: badges usam apenas className — sem style inline que acumula */
+.badge { font-size: .69rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; }
+.badge-green { background: var(--green-soft); color: var(--green); }
+.badge-amber { background: var(--amber-soft); color: var(--amber); }
+.badge-red   { background: var(--red-soft);   color: var(--red);   }
+.badge-blue  { background: var(--blue-soft);  color: var(--blue);  }
+
+.val-row { display: flex; align-items: baseline; gap: 5px; margin-bottom: 5px; }
+.val-big  { font-size: clamp(1.9rem, 5vw, 2.4rem); font-weight: 800; color: var(--text-title); line-height: 1; }
+.val-unit { font-size: .92rem; color: var(--text-muted); font-weight: 600; }
+
+.card-desc { font-size: .8rem; color: var(--text-body); margin-bottom: 11px; min-height: 34px; }
+
+.slider-box {
+    background: #f8fafc; border: 1px solid #e2e8f0;
+    border-radius: 8px; padding: 7px 11px;
+}
+.slider-label {
+    display: flex; justify-content: space-between;
+    font-size: .73rem; font-weight: 600; color: var(--text-muted);
+    margin-bottom: 5px;
+}
+input[type="range"] {
+    width: 100%; height: 6px; border-radius: 3px;
+    background: #e2e8f0; outline: none;
+    -webkit-appearance: none; cursor: pointer;
+    accent-color: var(--blue);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ACTUATOR CARDS
+───────────────────────────────────────────────────────────────────────────── */
+.act-card {
+    background: #fff; border: 1px solid var(--border-soft);
+    border-radius: var(--r-md); padding: 15px; box-shadow: var(--shadow);
+}
+.act-header {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 9px;
+    flex-wrap: wrap; gap: 6px;
+}
+.act-title { font-size: .88rem; font-weight: 700; color: var(--text-title); display: flex; align-items: center; gap: 5px; }
+
+.act-box {
+    background: #f8fafc; border: 1px solid #e2e8f0;
+    border-radius: 10px; padding: 11px;
+    display: flex; align-items: center; gap: 11px; margin-bottom: 9px;
+}
+.act-icon {
+    width: 42px; height: 42px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.55rem; background: #e2e8f0; color: #64748b; flex-shrink: 0;
+}
+.act-info h4 { font-size: .97rem; color: var(--text-title); font-weight: 700; }
+.act-info p  { font-size: .72rem; color: var(--text-muted); }
+
+.logic-box {
+    background: #f1f5f9; border-radius: 6px;
+    padding: 7px 10px; font-size: .74rem;
+    color: var(--text-body); line-height: 1.4;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   CHART
+   FIX: canvas gerenciado 100% via JS (DPR) — sem !important no CSS
+───────────────────────────────────────────────────────────────────────────── */
+.chart-box {
+    background: #fff; border: 1px solid var(--border-soft);
+    border-radius: var(--r-md); padding: 15px; box-shadow: var(--shadow);
+}
+.chart-header {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 9px;
+    flex-wrap: wrap; gap: 6px;
+}
+.chart-title  { font-size: .85rem; font-weight: 700; color: var(--text-title); }
+.chart-legend { font-size: .73rem; display: flex; gap: 11px; flex-wrap: wrap; }
+
+canvas { display: block; }   /* sem !important — JS controla width/height */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LOG
+───────────────────────────────────────────────────────────────────────────── */
+.log-box {
+    background: #fff; border: 1px solid var(--border-soft);
+    border-radius: var(--r-md); padding: 15px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column;
+}
+.log-header {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 7px;
+}
+.log-title  { font-size: .85rem; font-weight: 700; color: var(--text-title); }
+.log-live   { font-size: .73rem; color: var(--green); font-weight: 700; }
+
+.log-container {
+    background: #f8fafc; border: 1px solid #e2e8f0;
+    border-radius: 8px; padding: 9px; flex: 1;
+    height: 185px; overflow-y: auto;
+    font-size: .76rem; line-height: 1.45;
+    /* FIX: scroll suave */
+    scroll-behavior: smooth;
+}
+.log-line { margin-bottom: 4px; border-bottom: 1px solid #edf2f7; padding-bottom: 3px; }
+.log-line:last-child { border-bottom: none; margin-bottom: 0; }
+.log-time    { color: var(--text-muted); font-weight: 600; margin-right: 4px; font-family: 'Courier New', monospace; }
+.log-ok      { color: var(--green); font-weight: 700; }
+.log-act     { color: var(--blue);  font-weight: 700; }
+.log-alert   { color: var(--red);   font-weight: 700; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────────────────────────────────────────── */
+.monitor-footer {
+    background: #edf3f7; border-top: 1px solid var(--border-soft);
+    padding: 11px 20px;
+    display: flex; flex-wrap: wrap;
+    justify-content: space-between; align-items: center;
+    gap: 5px; font-size: .77rem; color: var(--text-muted);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TOOLTIPS
+   FIX: max-width com min() evita estouro horizontal em telas estreitas.
+        tooltip-down posiciona abaixo do elemento.
+───────────────────────────────────────────────────────────────────────────── */
+[data-tip] { position: relative; cursor: help; }
+[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 9px); left: 50%;
+    transform: translateX(-50%);
+    background: #0f172a; color: #fff;
+    font-size: .74rem; font-weight: 400; line-height: 1.4;
+    padding: 8px 12px; border-radius: 8px;
+    width: max-content;
+    max-width: min(270px, calc(100vw - 24px)); /* FIX: impede overflow */
+    white-space: normal; word-break: break-word;
+    box-shadow: 0 8px 20px rgba(0,0,0,.22);
+    pointer-events: none;
+    opacity: 0; visibility: hidden;
+    transition: opacity .2s ease, transform .2s ease;
+    z-index: 1000; text-align: center;
+}
+[data-tip]:hover::after {
+    opacity: 1; visibility: visible;
+    transform: translateX(-50%) translateY(-4px);
+}
+.tip-down[data-tip]::after { bottom: auto; top: calc(100% + 9px); transform: translateX(-50%); }
+.tip-down[data-tip]:hover::after { transform: translateX(-50%) translateY(4px); }
+
+/* Sem hover em touch — tooltips não aparecem em mobile */
+@media (hover: none) { [data-tip]::after { display: none; } }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ACESSIBILIDADE — reduzir movimento
+───────────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .pulse-led    { animation: none; }
+    .fan-active   { animation: none !important; }
+    .wind-breeze  { animation: none !important; }
+    * { transition-duration: .01ms !important; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PRINT
+───────────────────────────────────────────────────────────────────────────── */
+@media print {
+    body { padding: 0; background: #fff; }
+    .monitor-frame { box-shadow: none; border: 1px solid #ccc; }
+    .scenarios, input[type="range"], .btn-row, .log-box, .btn-sc { display: none; }
+}
     </style>
 </head>
 <body>
 <div class="wrapper">
-    <div class="monitor-frame">
-        <div class="monitor-topbar">
-            <div class="system-identity">
-                <div class="system-icon">&#127793;</div>
-                <div class="system-title">
-                    <h1>Sistema de Supervisão da Estufa Inteligente</h1>
-                    <p>Controle Agroclimático de Borda &bull; Microcontrolador ESP32-S3 com FreeRTOS</p>
-                </div>
-            </div>
-            <div class="system-status-pills">
-                <div class="pill pill-green tooltip-down" data-tooltip="O FreeRTOS gerencia as tarefas do microcontrolador com tempo real estrito, garantindo resposta rápida aos sensores.">
-                    <span class="pulse-led"></span>
-                    <span>FreeRTOS: OPERACIONAL</span>
-                </div>
-                <div class="pill pill-blue tooltip-down" data-tooltip="Comunicação segura com a nuvem utilizando protocolo leve MQTT e criptografia TLS 1.3.">
-                    <span>&#128274; MQTT/TLS 1.3: CONECTADO</span>
-                </div>
-                <div class="pill pill-amber tooltip-down" id="powerPill" data-tooltip="O ESP32-S3 gerencia a energia ativamente para economizar a bateria da estufa.">
-                    <span>&#9889; ENERGIA: ATIVO (28 mA)</span>
-                </div>
+<div class="monitor-frame">
+
+    <!-- ── TOP BAR ─────────────────────────────────────────────────────────── -->
+    <div class="topbar">
+        <div class="sys-identity">
+            <div class="sys-icon">&#127793;</div>
+            <div class="sys-title">
+                <h1>Sistema de Supervisão da Estufa Inteligente</h1>
+                <p>Controle Agroclimático de Borda &bull; ESP32-S3 + FreeRTOS v10.4</p>
             </div>
         </div>
-
-        <div class="monitor-body">
-            <div class="help-banner">
-                <div class="help-banner-icon">&#128161;</div>
-                <div class="help-banner-text">
-                    <strong>Como funciona esta tela?</strong> Passe o mouse sobre qualquer sensor ou atuador para ver a explicação de engenharia. Use os controles deslizantes ou os botões de cenários para simular o clima da estufa em tempo real!
-                </div>
+        <div class="status-pills">
+            <div class="pill pill-green tip-down"
+                 data-tip="FreeRTOS gerencia 3 tasks com prioridades distintas: Task_Control (p3) lê sensores e aciona PWM/Relé; Task_Telemetry (p2) publica MQTT; Task_Power (p1) gerencia Deep Sleep.">
+                <span class="pulse-led"></span>
+                <span>FreeRTOS: OPERACIONAL</span>
             </div>
-
-            <div class="greenhouse-visual">
-                <div class="chamber-scene">
-                    <div class="ceiling-lamp" data-tooltip="Lâmpada LED de suplementação: acende automaticamente no escuro para manter o fotoperíodo das plantas.">
-                        <div class="lamp-bulb" id="visualLampBulb">&#128161;</div>
-                    </div>
-                    <div class="light-beam" id="visualLightBeam"></div>
-                    <div class="exhaust-duct" data-tooltip="Exaustor de ventilação: gira automaticamente para expulsar o calor excessivo quando a temperatura passa de 28 °C.">
-                        <div class="fan-blade" id="visualFan">&#9881;</div>
-                    </div>
-                    <div class="wind-breeze" id="visualWind">&#128168;</div>
-                    <div class="soil-bed" data-tooltip="Canteiro da estufa: solo fértil protegido com monitoramento contínuo de calor, umidade e luminosidade.">
-                        <span class="plant-item">&#127793;</span>
-                        <span class="plant-item">&#127807;</span>
-                        <span class="plant-item">&#127793;</span>
-                        <span class="plant-item">&#127807;</span>
-                    </div>
-                </div>
-
-                <div class="chamber-explanation">
-                    <h3>Visão Física da Estufa</h3>
-                    <p>O nó embarcado analisa as condições do ar e atua nas plantas para garantir produtividade máxima sem desperdício de energia elétrica.</p>
-                    <div class="chamber-live-status">
-                        <div class="live-status-item">
-                            <span>Status da Ventilação:</span>
-                            <strong id="liveVentStatus" style="color: var(--blue-brand);">Desligada (Clima Agradável)</strong>
-                        </div>
-                        <div class="live-status-item">
-                            <span>Status da Iluminação:</span>
-                            <strong id="liveLightStatus" style="color: var(--text-muted);">Apagada (Luz Solar Suficiente)</strong>
-                        </div>
-                        <div class="live-status-item">
-                            <span>Saúde da Cultura:</span>
-                            <strong style="color: var(--green-leaf);">Condições Ideais de Cultivo</strong>
-                        </div>
-                    </div>
-                </div>
+            <div class="pill pill-blue tip-down"
+                 data-tip="Pacotes MQTT encapsulados em TLS 1.3 com AES-256-GCM. Se a Wi-Fi cair, dados ficam em buffer circular na SPIFFS por até 72 h.">
+                &#128274; MQTT / TLS 1.3
             </div>
-
-            <div class="scenarios-container">
-                <div class="scenarios-title">&#9874; Simular Condições Climáticas Pré-programadas:</div>
-                <div class="buttons-row">
-                    <button class="btn-scenario active" onclick="applyPreset('ideal', event)">
-                        <span>&#9728;</span> Condição Ideal (24 °C / 65% / 850 Lux)
-                    </button>
-                    <button class="btn-scenario" onclick="applyPreset('calor', event)">
-                        <span>&#128293;</span> Dia Muito Quente (35 °C / Liga Exaustores no Máximo)
-                    </button>
-                    <button class="btn-scenario" onclick="applyPreset('noite', event)">
-                        <span>&#127769;</span> Noite Sem Luz (Acende Lâmpadas de Fotoperíodo)
-                    </button>
-                    <button class="btn-scenario" id="btnAutoSim" onclick="toggleAutoSim()">
-                        <span>&#9654;</span> Modo Automático 24 Horas: Desligado
-                    </button>
-                </div>
+            <div class="pill pill-amber tip-down" id="powerPill"
+                 data-tip="Corrente total do nó embarcado em modo ativo. No Deep Sleep cai para 15 µA (redução de ~99,9%).">
+                <span id="powerPillTxt">&#9889; ATIVO: 28 mA</span>
             </div>
-
-            <div class="section-heading">
-                <span>&#128202;</span> Sensores do Sistema Embarcado (Leitura em Tempo Real)
-            </div>
-
-            <div class="grid-3">
-                <div class="sensor-card" data-tooltip="Sensor BME280: Mede a temperatura interna via barramento I2C. Se passar de 28 °C, a ventilação é ligada.">
-                    <div class="card-top">
-                        <span class="sensor-tag">Sensor BME280</span>
-                        <span class="sensor-state" id="badgeTemp" style="background: var(--green-soft); color: var(--green-leaf);">AGRADÁVEL</span>
-                    </div>
-                    <div class="value-display">
-                        <span class="value-large" id="valTemp">24.5</span>
-                        <span class="value-unit">&deg;C</span>
-                    </div>
-                    <p class="card-description" id="descTemp">Temperatura ideal para o crescimento vegetal.</p>
-                    <div class="slider-box">
-                        <div class="slider-label">
-                            <span>Simular Temperatura</span>
-                            <strong id="sliderLabelTemp">24.5 &deg;C</strong>
-                        </div>
-                        <input type="range" id="inputTemp" min="15" max="42" step="0.5" value="24.5">
-                    </div>
-                </div>
-
-                <div class="sensor-card" data-tooltip="Sensor BME280: Mede a umidade relativa do ar. Valores entre 60% e 80% são ideais para prevenir fungos e desidratação.">
-                    <div class="card-top">
-                        <span class="sensor-tag">Sensor BME280</span>
-                        <span class="sensor-state" id="badgeHum" style="background: var(--green-soft); color: var(--green-leaf);">IDEAL</span>
-                    </div>
-                    <div class="value-display">
-                        <span class="value-large" id="valHum">65</span>
-                        <span class="value-unit">% UR</span>
-                    </div>
-                    <p class="card-description" id="descHum">Umidade equilibrada entre 60% e 80%.</p>
-                    <div class="slider-box">
-                        <div class="slider-label">
-                            <span>Simular Umidade</span>
-                            <strong id="sliderLabelHum">65 %</strong>
-                        </div>
-                        <input type="range" id="inputHum" min="20" max="95" step="1" value="65">
-                    </div>
-                </div>
-
-                <div class="sensor-card" data-tooltip="Sensor BH1750: Mede a radiação em Lux. Quando a luz natural cai abaixo de 500 Lux, o sistema liga a iluminação artificial.">
-                    <div class="card-top">
-                        <span class="sensor-tag">Sensor BH1750</span>
-                        <span class="sensor-state" id="badgeLux" style="background: var(--amber-soft); color: var(--amber-warm);">LUZ DO DIA</span>
-                    </div>
-                    <div class="value-display">
-                        <span class="value-large" id="valLux">850</span>
-                        <span class="value-unit">Lux</span>
-                    </div>
-                    <p class="card-description" id="descLux">Intensidade solar excelente. Lâmpadas apagadas.</p>
-                    <div class="slider-box">
-                        <div class="slider-label">
-                            <span>Simular Luz Natural</span>
-                            <strong id="sliderLabelLux">850 Lux</strong>
-                        </div>
-                        <input type="range" id="inputLux" min="50" max="2000" step="25" value="850">
-                    </div>
-                </div>
-            </div>
-
-            <div class="section-heading">
-                <span>&#9881;</span> Atuadores e Gestão Energética
-            </div>
-
-            <div class="grid-3">
-                <div class="actuator-card" data-tooltip="O microcontrolador modula a velocidade do ventilador via PWM no pino GPIO 18, acelerando suavemente se fizer calor.">
-                    <div class="actuator-header">
-                        <div class="actuator-title">&#128168; Sistema de Climatização</div>
-                        <span class="pill pill-blue" id="fanStatusPill">Desligado (0%)</span>
-                    </div>
-                    <div class="actuator-state-box">
-                        <div class="actuator-icon-large" id="fanIconCard">&#9881;</div>
-                        <div class="actuator-info">
-                            <h4 id="fanPercentText">0% de Potência</h4>
-                            <p>Modulação PWM (GPIO 18)</p>
-                        </div>
-                    </div>
-                    <div class="logic-explanation">
-                        <strong>Lógica Automática:</strong> Aciona proporcionalmente quando a temperatura ultrapassa 28,0 &deg;C.
-                    </div>
-                </div>
-
-                <div class="actuator-card" data-tooltip="O relé optoacoplado fecha o contato elétrico das lâmpadas quando a iluminação natural for insuficiente.">
-                    <div class="actuator-header">
-                        <div class="actuator-title">&#128161; Lâmpadas de Suplementação</div>
-                        <span class="pill pill-amber" id="lampStatusPill">Apagadas</span>
-                    </div>
-                    <div class="actuator-state-box">
-                        <div class="actuator-icon-large" id="lampIconCard">&#128161;</div>
-                        <div class="actuator-info">
-                            <h4 id="lampRelayText">Relé Aberto (OFF)</h4>
-                            <p>Controle Digital (GPIO 19)</p>
-                        </div>
-                    </div>
-                    <div class="logic-explanation">
-                        <strong>Lógica Automática:</strong> Liga as lâmpadas sempre que a luz natural for menor que 500 Lux.
-                    </div>
-                </div>
-
-                <div class="actuator-card" data-tooltip="O ESP32 entra em sono profundo (Deep Sleep consumindo 15 µA) e acorda periodicamente para economizar bateria.">
-                    <div class="actuator-header">
-                        <div class="actuator-title">&#128267; Economia de Bateria</div>
-                        <span class="pill pill-green" id="powerModePill">Modo Ativo</span>
-                    </div>
-                    <div class="actuator-state-box">
-                        <div class="actuator-icon-large" style="background: #dcfce7; color: var(--green-leaf);">&#128267;</div>
-                        <div class="actuator-info">
-                            <h4 id="currentText">28.5 mA</h4>
-                            <p>Consumo Elétrico do Nó</p>
-                        </div>
-                    </div>
-                    <button class="btn-scenario" style="width: 100%; justify-content: center; background: #e0f2fe; border-color: #7dd3fc; color: #0369a1;" onclick="triggerSleepCycle()">
-                        <span>&#128164;</span> Testar Modo Sono Profundo (Deep Sleep)
-                    </button>
-                </div>
-            </div>
-
-            <div class="grid-2-bottom">
-                <div class="chart-box" data-tooltip="Gráfico contínuo que mostra a evolução da temperatura e umidade nos últimos 40 segundos.">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-title);">&#128200; Histórico Climático Recente</span>
-                        <div style="font-size: 0.75rem; display: flex; gap: 12px;">
-                            <span style="color: var(--blue-brand); font-weight: bold;">&mdash; Temperatura (&deg;C)</span>
-                            <span style="color: var(--green-leaf); font-weight: bold;">&mdash; Umidade (%)</span>
-                        </div>
-                    </div>
-                    <canvas id="liveChart"></canvas>
-                </div>
-
-                <div class="terminal-box" data-tooltip="Registro em linguagem simples de tudo o que o microcontrolador está fazendo a cada segundo.">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-title);">&#128221; O que o Sistema está Fazendo?</span>
-                        <span style="font-size: 0.75rem; color: var(--green-leaf); font-weight: 600;">Ao vivo</span>
-                    </div>
-                    <div class="log-container" id="systemLogs"></div>
-                </div>
-            </div>
-
         </div>
-
-        <div class="monitor-footer">
-            <div><strong>Engenharia da Computação &bull; Celso Lisboa</strong> | Trabalho de Programação - Firmware (Fase 1)</div>
-            <div>Autor: <strong>Thiago Fernando</strong> | Plataforma: ESP32-S3 + FreeRTOS</div>
-        </div>
-
     </div>
-</div>
+
+    <!-- ── BODY ─────────────────────────────────────────────────────────────── -->
+    <div class="monitor-body">
+
+        <!-- HELP BANNER -->
+        <div class="help-banner">
+            <div class="help-banner-icon">&#128161;</div>
+            <div class="help-banner-text">
+                <strong>Como usar?</strong>
+                Passe o mouse sobre qualquer elemento para ver a lógica de engenharia.
+                Use os sliders ou os cenários para simular condições climáticas em tempo real!
+            </div>
+        </div>
+
+        <!-- GREENHOUSE VISUAL -->
+        <div class="greenhouse-visual">
+
+            <div class="chamber-scene"
+                 data-tip="Corte da câmara de cultivo: sensores BME280 e BH1750 comunicam por I2C (400 kHz) com o ESP32-S3, que aciona exaustor (PWM/GPIO 18) e lâmpadas (Relé/GPIO 19).">
+                <div class="ceiling-lamp"
+                     data-tip="Lâmpada LED de suplementação: o relé optoacoplado fecha o contato elétrico (110 V) quando a luz natural cai abaixo de 500 Lux — mantendo o fotoperíodo das plantas.">
+                    <div class="lamp-bulb" id="vLampBulb">&#128161;</div>
+                </div>
+                <div class="light-beam" id="vLightBeam"></div>
+                <div class="exhaust-duct"
+                     data-tip="Exaustor DC 12 V com driver MOSFET IRF520: velocidade modulada por PWM a 25 kHz (GPIO 18) quando T > 28 °C. Frequência alta elimina ruído audível.">
+                    <div class="fan-blade" id="vFan">&#9881;</div>
+                </div>
+                <div class="wind-breeze" id="vWind">&#128168;</div>
+                <div class="soil-bed"
+                     data-tip="Solo fértil com monitoramento contínuo. O Task_Control do FreeRTOS amostra os sensores a cada 2 s e publica telemetria via MQTT.">
+                    <span class="plant-item">&#127793;</span>
+                    <span class="plant-item">&#127807;</span>
+                    <span class="plant-item">&#127793;</span>
+                    <span class="plant-item">&#127807;</span>
+                </div>
+            </div>
+
+            <div class="chamber-expl">
+                <h3>&#127968; Visão Física da Estufa</h3>
+                <p>O ESP32-S3 lê sensores via I2C e age em malha fechada sobre climatização e iluminação para maximizar produtividade sem desperdício de energia.</p>
+                <div class="live-status">
+                    <div class="live-status-row">
+                        <span>Ventilação:</span>
+                        <strong id="liveVent" style="color: var(--text-muted);">Desligada</strong>
+                    </div>
+                    <div class="live-status-row">
+                        <span>Iluminação:</span>
+                        <strong id="liveLight" style="color: var(--text-muted);">Apagada (luz natural)</strong>
+                    </div>
+                    <div class="live-status-row">
+                        <span>Saúde da Cultura:</span>
+                        <strong id="liveHealth" style="color: var(--green);">Condições Ideais ✓</strong>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /greenhouse-visual -->
+
+        <!-- SCENARIOS -->
+        <div class="scenarios">
+            <div class="scenarios-title">&#9874; Simular Condições Climáticas Pré-programadas:</div>
+            <div class="btn-row">
+                <button class="btn-sc active" id="btnIdeal" onclick="preset('ideal', this)">
+                    &#9728; Ideal (24 °C / 65% / 850 Lux)
+                </button>
+                <button class="btn-sc" id="btnCalor" onclick="preset('calor', this)">
+                    &#128293; Calor Extremo (35 °C)
+                </button>
+                <button class="btn-sc" id="btnNoite" onclick="preset('noite', this)">
+                    &#127769; Noite (150 Lux)
+                </button>
+                <button class="btn-sc" id="btnAuto" onclick="toggleAuto()">
+                    &#9654; Ciclo 24 h: OFF
+                </button>
+            </div>
+        </div>
+
+        <!-- SENSORS -->
+        <div class="section-h">&#128202; Sensores do Nó Embarcado (via I2C — Tempo Real)</div>
+        <div class="grid-3">
+
+            <!-- TEMPERATURA -->
+            <div class="sensor-card"
+                 data-tip="BME280 (I2C 0x76, GPIO 21/22, 400 kHz): precisão ±0,3 °C. O FreeRTOS aciona o PWM do exaustor proporcionalmente quando T supera 28 °C.">
+                <div class="card-top">
+                    <span class="sensor-tag">BME280 · Temperatura</span>
+                    <span class="badge badge-green" id="badgeTemp">AGRADÁVEL</span>
+                </div>
+                <div class="val-row">
+                    <span class="val-big" id="valTemp">24.5</span>
+                    <span class="val-unit">&deg;C</span>
+                </div>
+                <p class="card-desc" id="descTemp">Temperatura ideal para o cultivo protegido.</p>
+                <div class="slider-box">
+                    <div class="slider-label">
+                        <span>Simular Temperatura</span>
+                        <strong id="lblTemp">24.5 °C</strong>
+                    </div>
+                    <input type="range" id="inTemp" min="15" max="42" step="0.5" value="24.5"
+                           aria-label="Temperatura em graus Celsius">
+                </div>
+            </div>
+
+            <!-- UMIDADE -->
+            <div class="sensor-card"
+                 data-tip="BME280 (barramento I2C compartilhado com BH1750): umidade relativa entre 60–80% previne fungos e desidratação do solo. Acima de 80%, o exaustor ajuda na circulação.">
+                <div class="card-top">
+                    <span class="sensor-tag">BME280 · Umidade Relativa</span>
+                    <span class="badge badge-green" id="badgeHum">IDEAL</span>
+                </div>
+                <div class="val-row">
+                    <span class="val-big" id="valHum">65</span>
+                    <span class="val-unit">% UR</span>
+                </div>
+                <p class="card-desc" id="descHum">Umidade ideal entre 60% e 80%.</p>
+                <div class="slider-box">
+                    <div class="slider-label">
+                        <span>Simular Umidade</span>
+                        <strong id="lblHum">65 %</strong>
+                    </div>
+                    <input type="range" id="inHum" min="20" max="95" step="1" value="65"
+                           aria-label="Umidade relativa em porcentagem">
+                </div>
+            </div>
+
+            <!-- LUMINOSIDADE -->
+            <div class="sensor-card"
+                 data-tip="BH1750 (I2C 0x23, GPIO 21/22, modo contínuo alta resolução — 1 Lux): abaixo de 500 Lux o GPIO 19 aciona o relé optoacoplado que liga as lâmpadas de fotoperíodo.">
+                <div class="card-top">
+                    <span class="sensor-tag">BH1750 · Luminosidade</span>
+                    <span class="badge badge-green" id="badgeLux">LUZ NATURAL</span>
+                </div>
+                <div class="val-row">
+                    <span class="val-big" id="valLux">850</span>
+                    <span class="val-unit">Lux</span>
+                </div>
+                <p class="card-desc" id="descLux">Intensidade solar suficiente. Lâmpadas apagadas.</p>
+                <div class="slider-box">
+                    <div class="slider-label">
+                        <span>Simular Luz Natural</span>
+                        <strong id="lblLux">850 Lux</strong>
+                    </div>
+                    <input type="range" id="inLux" min="50" max="2000" step="25" value="850"
+                           aria-label="Luminosidade em Lux">
+                </div>
+            </div>
+
+        </div><!-- /grid-3 sensores -->
+
+        <!-- ACTUATORS -->
+        <div class="section-h">&#9881; Atuadores e Gestão de Energia</div>
+        <div class="grid-3">
+
+            <!-- VENTILADOR -->
+            <div class="act-card"
+                 data-tip="Driver MOSFET IRF520 (GPIO 18): PWM a 25 kHz, resolução 10 bits. Frequência ultrassônica elimina ruído. Ciclo de trabalho D = min(100, (T−28)×16,6).">
+                <div class="act-header">
+                    <div class="act-title">&#128168; Sistema de Climatização</div>
+                    <span class="pill pill-off" id="fanPill">Desligado (0%)</span>
+                </div>
+                <div class="act-box">
+                    <div class="act-icon" id="fanIcon">&#9881;</div>
+                    <div class="act-info">
+                        <h4 id="fanPct">0% de Potência</h4>
+                        <p>PWM LEDC — GPIO 18 (25 kHz, 10 bits)</p>
+                    </div>
+                </div>
+                <div class="logic-box">
+                    <strong>Malha de controle:</strong>
+                    D = min(100, (T − 28,0) &times; 16,6) quando T &gt; 28 °C.
+                </div>
+            </div>
+
+            <!-- LÂMPADA -->
+            <div class="act-card"
+                 data-tip="Relé optoacoplado (GPIO 19): isolamento galvânico entre os 3,3 V do ESP32 e os 110 V das lâmpadas. Lógica invertida — LOW fecha o relé (ON).">
+                <div class="act-header">
+                    <div class="act-title">&#128161; Lâmpadas de Fotoperíodo</div>
+                    <span class="pill pill-off" id="lampPill">Apagadas</span>
+                </div>
+                <div class="act-box">
+                    <div class="act-icon" id="lampIcon">&#128161;</div>
+                    <div class="act-info">
+                        <h4 id="lampRelay">Relé Aberto (OFF)</h4>
+                        <p>GPIO 19 — Relé Optoacoplado (lógica inv.)</p>
+                    </div>
+                </div>
+                <div class="logic-box">
+                    <strong>Malha de controle:</strong>
+                    Fecha o relé sempre que BH1750 medir &lt; 500 Lux.
+                </div>
+            </div>
+
+            <!-- ENERGIA -->
+            <div class="act-card"
+                 data-tip="O ESP32-S3 alterna entre modo ativo (28 mA) e Deep Sleep (15 µA via RTC timer), reduzindo o consumo em ~99,9% durante períodos sem atuação necessária.">
+                <div class="act-header">
+                    <div class="act-title">&#128267; Gestão de Energia</div>
+                    <span class="pill pill-green" id="powerModePill">Modo Ativo</span>
+                </div>
+                <div class="act-box">
+                    <div class="act-icon" style="background:#dcfce7;color:var(--green);">&#128267;</div>
+                    <div class="act-info">
+                        <h4 id="currentTxt">28.0 mA</h4>
+                        <p>Corrente total do nó embarcado</p>
+                    </div>
+                </div>
+                <button class="btn-sc" style="width:100%;justify-content:center;background:#e0f2fe;border-color:#7dd3fc;color:#0369a1;"
+                        onclick="triggerSleep()">
+                    &#128164; Testar Deep Sleep (15 µA)
+                </button>
+            </div>
+
+        </div><!-- /grid-3 atuadores -->
+
+        <!-- CHART + LOG -->
+        <div class="grid-2">
+
+            <div class="chart-box"
+                 data-tip="Gráfico em HTML5 Canvas com correção de DPI (devicePixelRatio) — resolução nítida em telas Retina e mobile. Amostrado a 1 Hz, janela de 40 s.">
+                <div class="chart-header">
+                    <span class="chart-title">&#128200; Histórico Climático (40 s)</span>
+                    <div class="chart-legend">
+                        <span style="color:var(--blue);font-weight:700;">&#8212; Temperatura (°C)</span>
+                        <span style="color:var(--green);font-weight:700;">&#8212; Umidade (%)</span>
+                    </div>
+                </div>
+                <canvas id="chart"
+                        role="img"
+                        aria-label="Gráfico de temperatura e umidade dos últimos 40 segundos"></canvas>
+            </div>
+
+            <div class="log-box"
+                 data-tip="Registro em tempo real das decisões do firmware. Limitado a 60 entradas para não consumir memória indefinidamente — simulando o buffer circular da SPIFFS.">
+                <div class="log-header">
+                    <span class="log-title">&#128221; Log do Sistema (Firmware)</span>
+                    <span class="log-live">&#9679; AO VIVO</span>
+                </div>
+                <div class="log-container" id="logs"></div>
+            </div>
+
+        </div><!-- /grid-2 -->
+
+    </div><!-- /monitor-body -->
+
+    <!-- ── FOOTER ────────────────────────────────────────────────────────────── -->
+    <div class="monitor-footer">
+        <div><strong>Eng. da Computação &bull; Celso Lisboa</strong> &bull; Programação - Firmware &bull; Fase 1 &bull; Opção 3</div>
+        <div>Autor: <strong>Thiago Fernando</strong> &bull; RA 24113801 &bull; ESP32-S3 + FreeRTOS v10.4</div>
+    </div>
+
+</div><!-- /monitor-frame -->
+</div><!-- /wrapper -->
 
 <script>
-    let temp = 24.5;
-    let hum = 65;
-    let lux = 850;
-    let isSleeping = false;
-    let autoSim = false;
-    let tickCount = 0;
+/* ═══════════════════════════════════════════════════════════════════════════
+   ESTUFA INTELIGENTE IoT — Painel Supervisório
+   Firmware Simulado: ESP32-S3 + FreeRTOS v10.4
+   Autor: Thiago Fernando | Celso Lisboa — Fase 1
+   ═══════════════════════════════════════════════════════════════════════════ */
+'use strict';
 
-    const histTemp = new Array(40).fill(24.5);
-    const histHum = new Array(40).fill(65);
+/* ── Estado global ─────────────────────────────────────────────────────────── */
+let T = 24.5, H = 65, L = 850;   // temperatura, umidade, lux
+let sleeping = false;
+let autoOn   = false;
+let tick     = 0;
 
-    const inputTemp = document.getElementById('inputTemp');
-    const inputHum = document.getElementById('inputHum');
-    const inputLux = document.getElementById('inputLux');
-    const sliderLabelTemp = document.getElementById('sliderLabelTemp');
-    const sliderLabelHum = document.getElementById('sliderLabelHum');
-    const sliderLabelLux = document.getElementById('sliderLabelLux');
+const HIST   = 40;   // pontos no gráfico
+const LOGMAX = 60;   // FIX: limite de entradas no log
 
-    const valTemp = document.getElementById('valTemp');
-    const valHum = document.getElementById('valHum');
-    const valLux = document.getElementById('valLux');
+const histT  = new Array(HIST).fill(T);
+const histH  = new Array(HIST).fill(H);
 
-    const badgeTemp = document.getElementById('badgeTemp');
-    const badgeHum = document.getElementById('badgeHum');
-    const badgeLux = document.getElementById('badgeLux');
-    const descTemp = document.getElementById('descTemp');
-    const descHum = document.getElementById('descHum');
-    const descLux = document.getElementById('descLux');
+/* ── Refs DOM ──────────────────────────────────────────────────────────────── */
+const $ = id => document.getElementById(id);
 
-    const visualLampBulb = document.getElementById('visualLampBulb');
-    const visualLightBeam = document.getElementById('visualLightBeam');
-    const visualFan = document.getElementById('visualFan');
-    const visualWind = document.getElementById('visualWind');
+const inT = $('inTemp'), inH = $('inHum'), inL = $('inLux');
+const lblT = $('lblTemp'), lblH = $('lblHum'), lblL = $('lblLux');
+const valT = $('valTemp'), valH = $('valHum'), valL = $('valLux');
 
-    const liveVentStatus = document.getElementById('liveVentStatus');
-    const liveLightStatus = document.getElementById('liveLightStatus');
+const badgeT = $('badgeTemp'), badgeH = $('badgeHum'), badgeL = $('badgeLux');
+const descT  = $('descTemp'),  descH  = $('descHum'),  descL  = $('descLux');
 
-    const fanStatusPill = document.getElementById('fanStatusPill');
-    const fanPercentText = document.getElementById('fanPercentText');
-    const fanIconCard = document.getElementById('fanIconCard');
+const vLampBulb = $('vLampBulb'), vLightBeam = $('vLightBeam');
+const vFan = $('vFan'), vWind = $('vWind');
 
-    const lampStatusPill = document.getElementById('lampStatusPill');
-    const lampRelayText = document.getElementById('lampRelayText');
-    const lampIconCard = document.getElementById('lampIconCard');
+const liveVent  = $('liveVent');
+const liveLight = $('liveLight');
+const liveHealth = $('liveHealth');
 
-    const currentText = document.getElementById('currentText');
-    const powerPill = document.getElementById('powerPill');
-    const powerModePill = document.getElementById('powerModePill');
+const fanPill   = $('fanPill'),   fanIcon  = $('fanIcon'),  fanPct   = $('fanPct');
+const lampPill  = $('lampPill'),  lampIcon = $('lampIcon'), lampRelay = $('lampRelay');
+const powerPill = $('powerPill'), powerPillTxt = $('powerPillTxt');
+const powerModePill = $('powerModePill'), currentTxt = $('currentTxt');
 
-    const logsContainer = document.getElementById('systemLogs');
-    const canvas = document.getElementById('liveChart');
-    const ctx = canvas.getContext('2d');
+const logs  = $('logs');
+const canvas = $('chart');
+const ctx   = canvas.getContext('2d');
 
-    function resizeCanvas() {
-        canvas.width = canvas.parentElement.clientWidth - 32;
-        canvas.height = 180;
+/* ── Canvas com correção de DPI ────────────────────────────────────────────── */
+/*
+   FIX: O canvas original não considerava o devicePixelRatio (DPR).
+   Em telas Retina (DPR=2) o gráfico ficava borrado.
+   Solução: multiplicamos as dimensões físicas pelo DPR e usamos
+   ctx.setTransform para que as coordenadas de desenho permaneçam
+   em pixels CSS (não físicos). O !important foi removido do CSS.
+*/
+let cW = 0, cH = 180;
+
+function resizeCanvas() {
+    const dpr  = window.devicePixelRatio || 1;
+    const box  = canvas.parentElement;
+    cW = box.clientWidth - 30;   // desconta padding do .chart-box
+    cH = 180;
+    canvas.width  = Math.round(cW * dpr);
+    canvas.height = Math.round(cH * dpr);
+    canvas.style.width  = cW + 'px';
+    canvas.style.height = cH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);  // reset + scale de uma só vez
+}
+
+window.addEventListener('resize', () => { resizeCanvas(); renderChart(); });
+resizeCanvas();
+
+/* ── Log ───────────────────────────────────────────────────────────────────── */
+function addLog(cls, tag, msg) {
+    if (sleeping) return;
+    const ts  = new Date().toTimeString().slice(0, 8);
+    const row = document.createElement('div');
+    row.className = 'log-line';
+    row.innerHTML = `<span class="log-time">[${ts}]</span> <span class="${cls}">[${tag}]</span> ${msg}`;
+    logs.appendChild(row);
+
+    /* FIX: limita o DOM a LOGMAX entradas — evita consumo crescente de memória */
+    while (logs.children.length > LOGMAX) {
+        logs.removeChild(logs.firstChild);
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    logs.scrollTop = logs.scrollHeight;
+}
 
-    function addLog(badgeClass, badgeText, text) {
-        if (isSleeping) return;
-        const now = new Date().toTimeString().split(' ')[0];
-        const row = document.createElement('div');
-        row.className = 'log-line';
-        row.innerHTML = `<span class="log-time">[${now}]</span> <span class="${badgeClass}">[${badgeText}]</span> ${text}`;
-        logsContainer.appendChild(row);
-        logsContainer.scrollTop = logsContainer.scrollHeight;
-    }
+/* ── Helpers de badge (sensor-state) ──────────────────────────────────────── */
+/*
+   FIX: usa exclusivamente className — sem estilo inline que persiste
+   após mudança de classe e provoca cores erradas.
+*/
+function setBadge(el, variant, text) {
+    el.className = 'badge badge-' + variant;
+    el.textContent = text;
+}
 
-    function updateSystem() {
-        const cleanTemp = temp.toFixed(1);
-        const cleanHum = Math.round(hum);
-        const cleanLux = Math.round(lux);
+/* ── updateSystem ──────────────────────────────────────────────────────────── */
+function updateSystem() {
+    const t = parseFloat(T.toFixed(1));
+    const h = Math.round(H);
+    const l = Math.round(L);
 
-        sliderLabelTemp.innerText = cleanTemp + ' °C';
-        sliderLabelHum.innerText = cleanHum + ' %';
-        sliderLabelLux.innerText = cleanLux + ' Lux';
+    /* Labels dos sliders */
+    lblT.textContent = t + ' °C';
+    lblH.textContent = h + ' %';
+    lblL.textContent = l + ' Lux';
 
-        valTemp.innerText = cleanTemp;
-        valHum.innerText = cleanHum;
-        valLux.innerText = cleanLux;
+    /* Valores grandes */
+    valT.textContent = t;
+    valH.textContent = h;
+    valL.textContent = l;
 
-        let pwm = 0;
-        if (temp > 28.0) {
-            pwm = Math.min(100, Math.round((temp - 28.0) * 16.6));
-            badgeTemp.style.background = 'var(--red-soft)';
-            badgeTemp.style.color = 'var(--red-alert)';
-            badgeTemp.innerText = 'CALOR ELEVADO';
-            descTemp.innerText = 'Atenção: calor acima de 28 °C. Ventilação ativada para proteger as plantas.';
-        } else if (temp < 18.0) {
-            badgeTemp.style.background = 'var(--blue-soft)';
-            badgeTemp.style.color = 'var(--blue-brand)';
-            badgeTemp.innerText = 'FRIO';
-            descTemp.innerText = 'Temperatura fresca. O microcontrolador mantém a ventilação desligada.';
-        } else {
-            badgeTemp.style.background = 'var(--green-soft)';
-            badgeTemp.style.color = 'var(--green-leaf)';
-            badgeTemp.innerText = 'AGRADÁVEL';
-            descTemp.innerText = 'Temperatura ideal para o cultivo protegido.';
-        }
-
-        if (cleanHum < 50) {
-            badgeHum.style.background = 'var(--amber-soft)';
-            badgeHum.style.color = 'var(--amber-warm)';
-            badgeHum.innerText = 'AR SECO';
-            descHum.innerText = 'Ar seco. Recomenda-se irrigação para não desidratar o solo.';
-        } else if (cleanHum > 80) {
-            badgeHum.style.background = 'var(--amber-soft)';
-            badgeHum.style.color = 'var(--amber-warm)';
-            badgeHum.innerText = 'MUITO ÚMIDO';
-            descHum.innerText = 'Umidade alta. O exaustor ajudará na circulação do ar para evitar fungos.';
-        } else {
-            badgeHum.style.background = 'var(--green-soft)';
-            badgeHum.style.color = 'var(--green-leaf)';
-            badgeHum.innerText = 'IDEAL';
-            descHum.innerText = 'Umidade equilibrada entre 60% e 80%. As plantas transpiram com saúde.';
-        }
-
-        let lampOn = (cleanLux < 500);
-        if (lampOn) {
-            badgeLux.style.background = 'var(--amber-soft)';
-            badgeLux.style.color = 'var(--amber-warm)';
-            badgeLux.innerText = 'POUCA LUZ';
-            descLux.innerText = 'Luz ambiente insuficiente (< 500 Lux). Lâmpadas acesas para manter o crescimento.';
-        } else {
-            badgeLux.style.background = 'var(--green-soft)';
-            badgeLux.style.color = 'var(--green-leaf)';
-            badgeLux.innerText = 'LUZ NATURAL';
-            descLux.innerText = 'Intensidade solar excelente. Lâmpadas apagadas economizando energia.';
-        }
-
-        fanPercentText.innerText = pwm + '% de Potência';
-        if (pwm > 0) {
-            fanStatusPill.className = 'pill pill-blue';
-            fanStatusPill.innerText = `Ligado (${pwm}%)`;
-            visualFan.className = 'fan-blade spinning';
-            visualFan.style.animationDuration = Math.max(0.12, 1.0 - (pwm / 130)) + 's';
-            visualWind.style.display = 'block';
-            fanIconCard.style.color = 'var(--blue-brand)';
-            liveVentStatus.innerText = `Ativa a ${pwm}% de velocidade (Resfriando a estufa)`;
-            liveVentStatus.style.color = 'var(--blue-brand)';
-        } else {
-            fanStatusPill.className = 'pill';
-            fanStatusPill.style.background = '#f1f5f9';
-            fanStatusPill.style.color = '#64748b';
-            fanStatusPill.innerText = 'Desligado (0%)';
-            visualFan.className = 'fan-blade';
-            visualWind.style.display = 'none';
-            fanIconCard.style.color = '#94a3b8';
-            liveVentStatus.innerText = 'Desligada (Clima Agradável)';
-            liveVentStatus.style.color = 'var(--text-muted)';
-        }
-
-        if (lampOn) {
-            lampStatusPill.className = 'pill pill-amber';
-            lampStatusPill.innerText = 'Acesa (Ligada)';
-            lampRelayText.innerText = 'Relé Fechado (LIGADO)';
-            lampRelayText.style.color = 'var(--amber-warm)';
-            visualLampBulb.className = 'lamp-bulb lamp-glow-on';
-            visualLightBeam.style.display = 'block';
-            lampIconCard.style.color = 'var(--amber-warm)';
-            liveLightStatus.innerText = 'Acesa (Suplementação Ativa)';
-            liveLightStatus.style.color = 'var(--amber-warm)';
-        } else {
-            lampStatusPill.className = 'pill';
-            lampStatusPill.style.background = '#f1f5f9';
-            lampStatusPill.style.color = '#64748b';
-            lampStatusPill.innerText = 'Apagada';
-            lampRelayText.innerText = 'Relé Aberto (DESLIGADO)';
-            lampRelayText.style.color = 'var(--text-title)';
-            visualLampBulb.className = 'lamp-bulb';
-            visualLightBeam.style.display = 'none';
-            lampIconCard.style.color = '#94a3b8';
-            liveLightStatus.innerText = 'Apagada (Luz Natural Suficiente)';
-            liveLightStatus.style.color = 'var(--text-muted)';
-        }
-
-        if (!isSleeping) {
-            let totalMa = 26.0 + (pwm * 0.45) + (lampOn ? 18.0 : 0.0);
-            currentText.innerText = totalMa.toFixed(1) + ' mA';
-            powerPill.innerHTML = `<span>&#9889; ENERGIA: ATIVO (${totalMa.toFixed(0)} mA)</span>`;
-            powerModePill.innerText = 'Modo Normal Ativo';
-        }
+    /* ── Badge temperatura */
+    if (t > 28) {
+        setBadge(badgeT, 'red',   'CALOR ELEVADO');
+        descT.textContent = `Temperatura ${t} °C ultrapassa 28 °C — exaustor acionado via PWM.`;
+    } else if (t < 18) {
+        setBadge(badgeT, 'blue',  'FRIO');
+        descT.textContent = 'Temperatura baixa. Ventilação desligada para conservar calor.';
+    } else {
+        setBadge(badgeT, 'green', 'AGRADÁVEL');
+        descT.textContent = 'Temperatura dentro da faixa ideal de cultivo (18–28 °C).';
     }
 
-    function renderChart() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const w = canvas.width;
-        const h = canvas.height;
+    /* ── Badge umidade */
+    if (h < 50) {
+        setBadge(badgeH, 'amber', 'AR SECO');
+        descH.textContent = 'Umidade abaixo de 50%. Risco de desidratação — irrigação recomendada.';
+    } else if (h > 80) {
+        setBadge(badgeH, 'amber', 'MUITO ÚMIDO');
+        descH.textContent = 'Umidade acima de 80%. Risco de fungos — exaustor auxilia na circulação.';
+    } else {
+        setBadge(badgeH, 'green', 'IDEAL');
+        descH.textContent = 'Umidade entre 60–80%. Transpiração e absorção de nutrientes normais.';
+    }
 
-        ctx.strokeStyle = '#f1f5f9';
-        ctx.lineWidth = 1;
-        for (let i = 1; i <= 4; i++) {
-            ctx.beginPath();
-            ctx.moveTo(0, (h / 4) * i);
-            ctx.lineTo(w, (h / 4) * i);
-            ctx.stroke();
-        }
+    /* ── Badge luminosidade */
+    const lampOn = (l < 500);
+    if (lampOn) {
+        setBadge(badgeL, 'amber', 'POUCA LUZ');
+        descL.textContent = `Luz ambiente: ${l} Lux (< 500). Lâmpadas LED acesas para fotossíntese.`;
+    } else {
+        setBadge(badgeL, 'green', 'LUZ NATURAL');
+        descL.textContent = 'Luz natural suficiente. Lâmpadas desligadas — economia de energia.';
+    }
 
-        ctx.strokeStyle = '#0284c7';
-        ctx.lineWidth = 2.5;
+    /* ── PWM (proporcional à temperatura) */
+    const pwm = t > 28 ? Math.min(100, Math.round((t - 28) * 16.6)) : 0;
+
+    /* FIX PRINCIPAL:
+       No código original, ao desligar o fan era feito:
+           fanPill.className = 'pill';
+           fanPill.style.background = '#f1f5f9';  ← inline style!
+           fanPill.style.color = '#64748b';       ← inline style!
+       Quando o fan voltava a ligar, a className mudava para 'pill pill-blue',
+       MAS os estilos inline SOBREPÕEM o CSS da classe — o pill ficava com
+       fundo errado.
+       CORREÇÃO: classe .pill-off define as cores e nunca usamos style inline. */
+    if (pwm > 0) {
+        fanPill.className    = 'pill pill-blue';
+        fanPill.textContent  = `Ligado (${pwm}%)`;
+        vFan.className       = 'fan-blade fan-active';
+        vFan.style.setProperty('--fan-spd', Math.max(.12, 1 - pwm / 130) + 's');
+        vWind.style.display  = 'block';
+        fanIcon.style.color  = 'var(--blue)';
+        fanPct.textContent   = pwm + '% de Potência';
+        liveVent.textContent = `Ativa em ${pwm}% — resfriando a estufa`;
+        liveVent.style.color = 'var(--blue)';
+    } else {
+        fanPill.className    = 'pill pill-off';  /* FIX: pill-off em vez de style inline */
+        fanPill.textContent  = 'Desligado (0%)';
+        vFan.className       = 'fan-blade';
+        vWind.style.display  = 'none';
+        fanIcon.style.color  = '#94a3b8';
+        fanPct.textContent   = '0% de Potência';
+        liveVent.textContent = 'Desligada (clima agradável)';
+        liveVent.style.color = 'var(--text-muted)';
+    }
+
+    /* FIX: mesma correção para o pill da lâmpada */
+    if (lampOn) {
+        lampPill.className      = 'pill pill-amber';
+        lampPill.textContent    = 'Acesa';
+        lampRelay.textContent   = 'Relé Fechado (ON)';
+        lampRelay.style.color   = 'var(--amber)';
+        vLampBulb.className     = 'lamp-bulb lamp-glow-on';
+        vLightBeam.style.display = 'block';
+        lampIcon.style.color    = 'var(--amber)';
+        liveLight.textContent   = 'Acesa — suplementação ativa';
+        liveLight.style.color   = 'var(--amber)';
+    } else {
+        lampPill.className      = 'pill pill-off';  /* FIX */
+        lampPill.textContent    = 'Apagada';
+        lampRelay.textContent   = 'Relé Aberto (OFF)';
+        lampRelay.style.color   = 'var(--text-title)';
+        vLampBulb.className     = 'lamp-bulb';
+        vLightBeam.style.display = 'none';
+        lampIcon.style.color    = '#94a3b8';
+        liveLight.textContent   = 'Apagada (luz natural)';
+        liveLight.style.color   = 'var(--text-muted)';
+    }
+
+    /* ── Saúde da cultura */
+    const healthy = (t >= 18 && t <= 28 && h >= 60 && h <= 80 && l >= 500);
+    liveHealth.textContent = healthy ? 'Condições Ideais ✓' : 'Atenção — Verificar Sensores';
+    liveHealth.style.color = healthy ? 'var(--green)' : 'var(--amber)';
+
+    /* ── Consumo elétrico */
+    if (!sleeping) {
+        const mA = 26 + (pwm * 0.45) + (lampOn ? 18 : 0);
+        currentTxt.textContent   = mA.toFixed(1) + ' mA';
+        powerPillTxt.textContent = `⚡ ATIVO: ${mA.toFixed(0)} mA`;
+        powerPill.className      = 'pill pill-amber tip-down';
+        powerModePill.className  = 'pill pill-green';
+        powerModePill.textContent = 'Modo Ativo';
+    }
+}
+
+/* ── renderChart ───────────────────────────────────────────────────────────── */
+/*
+   FIX: usa cW/cH (dimensões CSS) como coordenadas de desenho,
+   enquanto o canvas físico é maior (×DPR).
+   Adicionadas margens e rótulos de eixo para melhor leitura.
+*/
+function renderChart() {
+    ctx.clearRect(0, 0, cW, cH);
+
+    const pL = 38, pR = 10, pT = 10, pB = 22;
+    const iW = cW - pL - pR;
+    const iH = cH - pT - pB;
+
+    /* Grade horizontal */
+    ctx.strokeStyle = '#f1f5f9';
+    ctx.lineWidth = 1;
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px Segoe UI, sans-serif';
+    ctx.textAlign = 'right';
+
+    for (let i = 0; i <= 4; i++) {
+        const y = pT + (iH / 4) * i;
         ctx.beginPath();
-        for (let i = 0; i < histTemp.length; i++) {
-            let x = (i / (histTemp.length - 1)) * w;
-            let y = h - ((histTemp[i] - 15) / 30) * h;
-            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-        }
+        ctx.moveTo(pL, y);
+        ctx.lineTo(pL + iW, y);
         ctx.stroke();
-
-        ctx.strokeStyle = '#16a34a';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        for (let i = 0; i < histHum.length; i++) {
-            let x = (i / (histHum.length - 1)) * w;
-            let y = h - ((histHum[i] - 20) / 80) * h;
-            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
+        /* Rótulo da temperatura (15–45 °C) */
+        const tLabel = Math.round(45 - (30 * i / 4));
+        ctx.fillText(tLabel + '°', pL - 4, y + 4);
     }
 
-    function triggerSleepCycle() {
-        isSleeping = true;
-        currentText.innerText = '0.015 mA (15 µA)';
-        powerPill.innerHTML = `<span>&#128164; ENERGIA: DEEP SLEEP (15 µA)</span>`;
-        powerPill.className = 'pill tooltip-down';
-        powerPill.style.background = '#e2e8f0';
-        powerPill.style.color = '#475569';
-        powerModePill.innerText = 'Em Sono Profundo';
-        powerModePill.className = 'pill';
+    /* Rótulos do eixo X */
+    ctx.textAlign = 'left';
+    ctx.fillText('40 s atrás', pL, cH - 5);
+    ctx.textAlign = 'right';
+    ctx.fillText('agora', cW - pR, cH - 5);
 
-        addLog('log-badge-act', 'ECONOMIA', 'O ESP32 entrou em Deep Sleep. Consumo caiu para apenas 15 microamperes!');
+    /* Linha de temperatura (azul) */
+    ctx.strokeStyle = '#0284c7';
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    histT.forEach((v, i) => {
+        const x = pL + (i / (HIST - 1)) * iW;
+        const y = pT + iH - ((v - 15) / 30) * iH;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
 
-        setTimeout(() => {
-            isSleeping = false;
-            powerPill.className = 'pill pill-amber tooltip-down';
-            powerModePill.className = 'pill pill-green';
-            addLog('log-badge-ok', 'DESPERTAR', 'Temporizador RTC acordou o microcontrolador! Leituras e controle retomados.');
-            updateSystem();
-        }, 7000);
-    }
+    /* Linha de umidade (verde) */
+    ctx.strokeStyle = '#16a34a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    histH.forEach((v, i) => {
+        const x = pL + (i / (HIST - 1)) * iW;
+        const y = pT + iH - ((v - 20) / 75) * iH;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+}
 
-    function applyPreset(type, evt) {
-        document.querySelectorAll('.btn-scenario').forEach(b => b.classList.remove('active'));
-        if (evt && evt.currentTarget) evt.currentTarget.classList.add('active');
+/* ── Deep Sleep ────────────────────────────────────────────────────────────── */
+function triggerSleep() {
+    if (sleeping) return;
+    sleeping = true;
 
-        if (type === 'ideal') {
-            temp = 24.5; hum = 65; lux = 850;
-            addLog('log-badge-ok', 'CENÁRIO', 'Condição Ideal aplicada: 24.5 °C, 65% de umidade e 850 Lux.');
-        } else if (type === 'calor') {
-            temp = 35.0; hum = 35; lux = 1400;
-            addLog('log-badge-alert', 'ALERTA', 'Pico de calor simulado (35 °C)! Exaustor acelerado para refrigerar.');
-        } else if (type === 'noite') {
-            temp = 18.0; hum = 80; lux = 150;
-            addLog('log-badge-act', 'FOTOPERÍODO', 'Noite simulada (< 500 Lux). Relé fechado e lâmpadas acesas.');
-        }
-        inputTemp.value = temp;
-        inputHum.value = hum;
-        inputLux.value = lux;
+    currentTxt.textContent   = '0.015 mA (15 µA)';
+    powerPillTxt.textContent = '&#128164; DEEP SLEEP: 15 µA';
+    powerPill.className      = 'pill pill-off tip-down';
+    powerModePill.className  = 'pill pill-off';
+    powerModePill.textContent = 'Em Deep Sleep';
+
+    addLog('log-act', 'DEEP SLEEP',
+        'ESP32 entrou em sono profundo. Corrente: 15 µA. Timer RTC ativo.');
+
+    setTimeout(() => {
+        sleeping = false;
+        addLog('log-ok', 'WAKEUP',
+            'Timer RTC acordou o ESP32-S3! Leituras e telemetria MQTT retomadas.');
         updateSystem();
+    }, 7000);
+}
+
+/* ── Presets ───────────────────────────────────────────────────────────────── */
+/*
+   FIX: ao aplicar um preset, o autoSim é desligado e o botão de auto
+   tem sua classe .active removida — evitava dois botões ativos ao mesmo tempo.
+*/
+function preset(type, btn) {
+    /* Para o auto se estiver ligado */
+    if (autoOn) {
+        autoOn = false;
+        const ab = $('btnAuto');
+        ab.textContent = '▶ Ciclo 24 h: OFF';
+        ab.classList.remove('active');
     }
 
-    function toggleAutoSim() {
-        autoSim = !autoSim;
-        const b = document.getElementById('btnAutoSim');
-        if (autoSim) {
-            b.innerText = 'Modo Automático 24 Horas: LIGADO';
-            b.classList.add('active');
-            addLog('log-badge-ok', 'SIMULAÇÃO', 'Iniciada simulação automática do ciclo dia e noite.');
-        } else {
-            b.innerText = 'Modo Automático 24 Horas: DESLIGADO';
-            b.classList.remove('active');
-            addLog('log-badge-ok', 'SIMULAÇÃO', 'Simulação automática pausada.');
-        }
+    document.querySelectorAll('.btn-sc').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+
+    if (type === 'ideal') {
+        T = 24.5; H = 65;  L = 850;
+        addLog('log-ok',    'CENÁRIO',    'Condição ideal: 24,5 °C | 65% UR | 850 Lux.');
+    } else if (type === 'calor') {
+        T = 35.0; H = 35;  L = 1400;
+        addLog('log-alert', 'ALERTA',     'Pico de calor (35 °C)! PWM do exaustor acelerado ao máximo.');
+    } else if (type === 'noite') {
+        T = 18.5; H = 80;  L = 150;
+        addLog('log-act',   'FOTOPERÍODO','Noite (150 Lux < 500). Relé fechado — lâmpadas de fotoperíodo acesas.');
     }
 
-    inputTemp.oninput = e => { temp = parseFloat(e.target.value); updateSystem(); };
-    inputHum.oninput = e => { hum = parseInt(e.target.value); updateSystem(); };
-    inputLux.oninput = e => { lux = parseInt(e.target.value); updateSystem(); };
+    inT.value = T; inH.value = H; inL.value = L;
+    updateSystem();
+}
 
-    setInterval(() => {
-        tickCount++;
-        if (!isSleeping) {
-            if (autoSim) {
-                let phase = (tickCount % 90) / 90;
-                temp = 22.0 + Math.sin(phase * Math.PI * 2) * 11.0;
-                hum = Math.round(70.0 - Math.sin(phase * Math.PI * 2) * 22.0);
-                lux = Math.max(80, Math.round(900 + Math.sin(phase * Math.PI * 2) * 850));
-                inputTemp.value = temp.toFixed(1);
-                inputHum.value = hum;
-                inputLux.value = lux;
-            } else {
-                temp = Math.max(15, Math.min(42, temp + (Math.random() - 0.5) * 0.08));
-                hum = Math.max(20, Math.min(95, hum + (Math.random() - 0.5) * 0.15));
-            }
+/* ── Auto Simulation (ciclo dia/noite 90 s) ────────────────────────────────── */
+/*
+   FIX: ao ligar o auto, todos os botões de preset perdem .active.
+*/
+function toggleAuto() {
+    autoOn = !autoOn;
+    const b = $('btnAuto');
+    document.querySelectorAll('.btn-sc').forEach(btn => btn.classList.remove('active'));
 
-            histTemp.push(temp); histTemp.shift();
-            histHum.push(hum); histHum.shift();
+    if (autoOn) {
+        b.textContent = '&#9646;&#9646; Ciclo 24 h: ON';
+        b.classList.add('active');
+        addLog('log-ok', 'SIMULAÇÃO', 'Ciclo dia/noite automático iniciado (90 s = 24 h comprimidas).');
+    } else {
+        b.textContent = '▶ Ciclo 24 h: OFF';
+        addLog('log-ok', 'SIMULAÇÃO', 'Simulação automática pausada.');
+    }
+}
 
-            updateSystem();
-            renderChart();
+/* ── Sliders ───────────────────────────────────────────────────────────────── */
+inT.addEventListener('input', e => { T = parseFloat(e.target.value); updateSystem(); });
+inH.addEventListener('input', e => { H = parseInt(e.target.value);   updateSystem(); });
+inL.addEventListener('input', e => { L = parseInt(e.target.value);   updateSystem(); });
 
-            if (tickCount % 4 === 0) {
-                if (temp > 28) {
-                    addLog('log-badge-alert', 'CONTROLE', `Exaustor modulado em PWM para conter a temperatura atual de ${temp.toFixed(1)} °C.`);
-                } else if (lux < 500) {
-                    addLog('log-badge-act', 'CONTROLE', `Luz ambiente baixa (${Math.round(lux)} Lux). Lâmpadas ligadas pelo relé.`);
-                } else {
-                    addLog('log-badge-ok', 'TELEMETRIA', `Leituras estáveis: ${temp.toFixed(1)} °C, ${Math.round(hum)}% UR, ${Math.round(lux)} Lux. Dados seguros.`);
-                }
-            }
-        }
-    }, 1000);
+/* ── Tick 1 Hz ─────────────────────────────────────────────────────────────── */
+setInterval(() => {
+    tick++;
+    if (sleeping) return;
 
-    addLog('log-badge-ok', 'SISTEMA', 'Inicialização concluída: ESP32-S3 operando com FreeRTOS.');
-    addLog('log-badge-ok', 'SENSORES', 'Barramento I2C calibrado. Sensores BME280 e BH1750 ativos.');
+    if (autoOn) {
+        /* Simula um ciclo completo de 24 horas em 90 segundos */
+        const phase = (tick % 90) / 90;
+        T = 22 + Math.sin(phase * Math.PI * 2) * 11;
+        H = Math.round(70 - Math.sin(phase * Math.PI * 2) * 22);
+        L = Math.max(80, Math.round(900 + Math.sin(phase * Math.PI * 2) * 850));
+        inT.value = T.toFixed(1); inH.value = H; inL.value = L;
+    } else {
+        /* Pequeno ruído para realismo */
+        T = Math.max(15, Math.min(42, T + (Math.random() - .5) * .1));
+        H = Math.max(20, Math.min(95, H + (Math.random() - .5) * .2));
+        L = Math.max(50, Math.min(2000, L + (Math.random() - .5) * 6));
+    }
+
+    histT.push(T); histT.shift();
+    histH.push(H); histH.shift();
+
     updateSystem();
     renderChart();
+
+    /* Log a cada 4 s */
+    if (tick % 4 === 0) {
+        const t = parseFloat(T.toFixed(1));
+        const h = Math.round(H);
+        const l = Math.round(L);
+
+        if (t > 28) {
+            const pwm = Math.min(100, Math.round((t - 28) * 16.6));
+            addLog('log-alert', 'CONTROLE',
+                `Temp. elevada: ${t} °C — PWM do exaustor em ${pwm}%. Resfriando...`);
+        } else if (l < 500) {
+            addLog('log-act', 'CONTROLE',
+                `Luz baixa: ${l} Lux — GPIO 19 LOW → relé fechado → lâmpadas ON.`);
+        } else {
+            addLog('log-ok', 'TELEMETRIA',
+                `${t} °C | ${h}% UR | ${l} Lux — pacote MQTT publicado (TLS 1.3).`);
+        }
+    }
+}, 1000);
+
+/* ── Bootstrap ─────────────────────────────────────────────────────────────── */
+addLog('log-ok',  'BOOT',     'ESP32-S3 inicializado — FreeRTOS v10.4 em execução.');
+addLog('log-ok',  'I2C',      'Barramento I2C (400 kHz) calibrado. BME280 (0x76) e BH1750 (0x23) ativos.');
+addLog('log-act', 'MQTT',     'Handshake TLS 1.3 concluído. Broker MQTT conectado (AES-256-GCM).');
+addLog('log-ok',  'PWM',      'LEDC configurado: GPIO 18, 25 kHz, 10 bits de resolução.');
+addLog('log-ok',  'RTOS',     'Tasks: Control (p3), Telemetry (p2), Power_Mgmt (p1) — TWDT 3 000 ms.');
+
+updateSystem();
+renderChart();
 </script>
 </body>
 </html>
